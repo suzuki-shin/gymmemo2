@@ -178,7 +178,8 @@
       console.log('insertHoge');
     }
     return db.transaction(function(tx) {
-      return execSql(tx, 'insert into hoge (age, name) values (?,?)', [10, 'suzuk']);
+      execSql(tx, 'insert into hoge (age, name) values (?,?)', [10, 'suzuk']);
+      return execSelectAndLog(tx, 'hoge');
     });
   };
 
@@ -186,7 +187,17 @@
     $('#debug').on('click', createTableHoge);
     $('#debug').on('touch', createTableHoge);
     $('#itemstitle').on('click', insertHoge);
-    return $('#itemstitle').on('touch', insertHoge);
+    $('#itemstitle').on('touch', insertHoge);
+    $('#recordstitle').on('click', function(ev) {
+      return db.transaction(function(tx) {
+        return execSql(tx, 'select * from hoge', [], selectToTable('hoge', ['age', 'name'], $('#recordstitle')));
+      });
+    });
+    return $('#recordstitle').on('touch', function(ev) {
+      return db.transaction(function(tx) {
+        return execSql(tx, 'select * from hoge', [], selectToTable('hoge', ['age', 'name'], $('#recordstitle')));
+      });
+    });
   });
 
 }).call(this);

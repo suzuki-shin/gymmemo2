@@ -100,9 +100,17 @@ insertHoge =->
   console?.log 'insertHoge'
   db.transaction (tx) ->
     execSql tx, 'insert into hoge (age, name) values (?,?)', [10, 'suzuk']
+    execSelectAndLog tx, 'hoge'
+
 
 $ ->
   $('#debug').on 'click', createTableHoge
   $('#debug').on 'touch', createTableHoge
   $('#itemstitle').on 'click', insertHoge
   $('#itemstitle').on 'touch', insertHoge
+  $('#recordstitle').on 'click', (ev) ->
+    db.transaction (tx) ->
+      execSql tx, 'select * from hoge', [], selectToTable('hoge', ['age','name'], $('#recordstitle'))
+  $('#recordstitle').on 'touch', (ev) ->
+    db.transaction (tx) ->
+      execSql tx, 'select * from hoge', [], selectToTable('hoge', ['age','name'], $('#recordstitle'))
