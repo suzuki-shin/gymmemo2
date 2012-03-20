@@ -96,6 +96,13 @@ createTableHoge =->
   db.transaction (tx) ->
     execSql tx, 'create table hoge (age int, name text)'
 
+insertHoge =->
+  console?.log 'insertHoge'
+  db.transaction (tx) ->
+    execSql tx, 'insert into hoge (age, name) values (?,?)', [10, 'suzuk']
+
 $ ->
-#   $('#debug').on 'click', createTableHoge
+  $('#debug').on 'click', createTableHoge
   $('#debug').on 'touch', createTableHoge
+  $('#itemstitle').on 'click', insertHoge
+  $('#itemstitle').on 'touch', insertHoge

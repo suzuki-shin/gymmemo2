@@ -4,7 +4,7 @@
   # config
   */
 
-  var createTableHoge, createTableSql, db, execSelectAndLog, execSql, failureLog, getColsOf, insertData, selectTables, selectToConsoleLog, selectToTable, successLog;
+  var createTableHoge, createTableSql, db, execSelectAndLog, execSql, failureLog, getColsOf, insertData, insertHoge, selectTables, selectToConsoleLog, selectToTable, successLog;
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -173,8 +173,20 @@
     });
   };
 
+  insertHoge = function() {
+    if (typeof console !== "undefined" && console !== null) {
+      console.log('insertHoge');
+    }
+    return db.transaction(function(tx) {
+      return execSql(tx, 'insert into hoge (age, name) values (?,?)', [10, 'suzuk']);
+    });
+  };
+
   $(function() {
-    return $('#debug').on('touch', createTableHoge);
+    $('#debug').on('click', createTableHoge);
+    $('#debug').on('touch', createTableHoge);
+    $('#itemstitle').on('click', insertHoge);
+    return $('#itemstitle').on('touch', insertHoge);
   });
 
 }).call(this);
