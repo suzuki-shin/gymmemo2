@@ -4,7 +4,7 @@
   # config
   */
 
-  var createTableHoge, createTableSql, db, execSelectAndLog, execSql, failureLog, getColsOf, insertData, insertHoge, selectTables, selectToConsoleLog, selectToTable, successLog;
+  var createTableHoge, createTableItems, createTableSql, createTableTrainings, db, execSelectAndLog, execSql, failureLog, getColsOf, insertData, insertHoge, selectTables, selectToConsoleLog, selectToTable, successLog;
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -162,6 +162,20 @@
       })();
       return callback(cols);
     });
+  };
+
+  createTableItems = function(tx, success_func, failer_func) {
+    if (typeof console !== "undefined" && console !== null) {
+      console.log('createTableItems');
+    }
+    return execSql(tx, 'CREATE TABLE IF NOT EXISTS items (id INT, status INT, user TEXT, name TEXT is_saved INT DEFAULT 0)', success_func, failer_func);
+  };
+
+  createTableTrainings = function(tx, success_func, failer_func) {
+    if (typeof console !== "undefined" && console !== null) {
+      console.log('createTableTrainings');
+    }
+    return execSql(tx, 'CREATE TABLE IF NOT EXISTS trainings (id INT, status INT, user TEXT, item_id INT, value INT, created_at TEXT, is_saved INT DEFAULT 0)', success_func, failer_func);
   };
 
   createTableHoge = function() {

@@ -91,6 +91,21 @@ getColsOf = (tx, table_name, callback = (x) -> console.log x) ->
             cols = ((c.match /(\w+)\s+(.+)/)[1] for c in cols_with_type)
             callback cols
 
+
+
+createTableItems = (tx, success_func, failer_func) ->
+  console?.log 'createTableItems'
+  execSql tx, 'CREATE TABLE IF NOT EXISTS items (id INT, status INT, user TEXT, name TEXT is_saved INT DEFAULT 0)',
+          success_func,
+          failer_func
+
+createTableTrainings = (tx, success_func, failer_func) ->
+  console?.log 'createTableTrainings'
+  execSql tx, 'CREATE TABLE IF NOT EXISTS trainings (id INT, status INT, user TEXT, item_id INT, value INT, created_at TEXT, is_saved INT DEFAULT 0)',
+          success_func,
+          failer_func
+
+
 createTableHoge =->
   console?.log 'createTableHoge'
   db.transaction (tx) ->
