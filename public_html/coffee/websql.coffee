@@ -114,6 +114,14 @@ _res2NameValues = (res) ->
     len = res.rows.length
     (res.rows.item(i).name + ' ' + res.rows.item(i).value + res.rows.item(i).attr for i in [0...len])
 
+_res2ItemAll= (res) ->
+    len = res.rows.length
+    (res.rows.item(i).id + ' ' + res.rows.item(i).name + ' ' + res.rows.item(i).user + ' ' + res.rows.item(i).attr + ' ' + res.rows.item(i).is_saved for i in [0...len])
+
+_res2TrainingAll= (res) ->
+    len = res.rows.length
+    (res.rows.item(i).id + ' ' + res.rows.item(i).item_id + ' ' + res.rows.item(i).value + ' ' + res.rows.item(i).created_at + ' ' + res.rows.item(i).is_saved for i in [0...len])
+
 
 
 wrapHtmlList = (list, tag) ->
@@ -135,10 +143,10 @@ addTraining = (ev) ->
 # _addTraining = (item_id, value, created_at) ->
 #     console?.log '_addTraining'
 #     db.transaction (tx) ->
-#          tx.executeSql select_count_records, [],
+#          tx.executeSql select_count_trainings, [],
 #                        (tx, res) ->
 # #                            console.log res
-#                            tx.executeSql insert_record,
+#                            tx.executeSql insert_training,
 #                                          [res.rows.item(0).cnt + 1, 1, item_id, value, created_at]
 #                                          (tx, res) -> ''#console.log res
 #                                          reportError
@@ -153,18 +161,37 @@ getYYYYMMDD =->
   return yyyy + '/' + mm + '/' + dd
 
 
-xxx = (res, func = (x) -> x) ->
-  console?.log 'xxx'
-  len = res.rows.length
-  for i in [0...len]
-    console?.log func(res.rows.item(i))
-
 setUp =->
   db.transaction (tx) ->
     createTableItems tx
     createTableTrainings tx
     renderItems tx
     renderTodaysTrainings tx
+
+##
+## for test
+##
+xxx = (res, func = (x) -> x) ->
+  console?.log 'xxx'
+  len = res.rows.length
+  for i in [0...len]
+    console?.log func(res.rows.item(i))
+
+debugSelectItems =->
+  console?.log 'debugSelectItems'
+  db.transaction (tx) ->
+    tx.executeSql 'select * from items', [],
+                  (tx, res) ->
+                    $('#showdb').append wrapHtmlList(_res2ItemAll(res), 'li').join('')
+
+debugSelectTrainings =->
+  console?.log 'debugSelectTrainings'
+  db.transaction (tx) ->
+    tx.executeSql 'select * from trainings', [],
+                  (tx, res) ->
+                    $('#showdb').append wrapHtmlList(_res2TrainingAll(res), 'li').join('')
+
+
 
 
 $ ->
@@ -176,10 +203,18 @@ $ ->
 
 
 
+  $('#debug').on 'click touch',
+                 -> $('#showdb').toggle()
+
+  $('#showdb').click ->
+    debugSelectItems()
+    debugSelectTrainings()
+
   $('#test1').on 'click touch', ->
     console?.log 'test1'
-#     db.transaction (tx) ->
-#       tx.executeSql 'select * from item as  left join
+    db.transaction (tx) ->
+      tx.executeSql 'select * from items left join trainings on items.id = trainings.item_id', [],
+                    (tx, res) -> xxx(res, (x) -> x.attr + ':' + x.created_at + ':' + x.item_id + ':' + x.name)
 #       renderTodaysTrainings tx
 #       renderItems tx
 #       createTableItems tx,
