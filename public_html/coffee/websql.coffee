@@ -166,9 +166,10 @@ setUp =->
     renderItems tx
     renderTodaysTrainings tx
 
-setUp()
 
 $ ->
+  setUp()
+
   $('#itemstitle').on 'click touch', -> $('#itemadd').toggle()
   $('#itemadd button').on 'click touch', addItem
   $(document).on 'change', '#itemlist li input', addTraining

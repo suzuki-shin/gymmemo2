@@ -245,9 +245,8 @@
     });
   };
 
-  setUp();
-
   $(function() {
+    setUp();
     $('#itemstitle').on('click touch', function() {
       return $('#itemadd').toggle();
     });
