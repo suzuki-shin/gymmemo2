@@ -162,11 +162,35 @@ getYYYYMMDD =->
 
 
 setUp =->
+  console?.log 'setUp'
   db.transaction (tx) ->
     createTableItems tx
     createTableTrainings tx
     renderItems tx
     renderTodaysTrainings tx
+  createConfig()
+
+getConfig =->
+  console?.log 'getConfig'
+  JSON.parse(localStorage['config'])
+
+setConfig = (change_config) ->
+  config = getConfig()
+  _setConfig($.extend(config, change_config))
+
+_setConfig = (json) ->
+  console?.log '_setConfig'
+  localStorage['config'] = JSON.stringify(json)
+
+createConfig =->
+  console.log 'createConfig'
+  return if localStorage['config']?
+  _setConfig(
+    db_version: 0
+    localstrage_version: 0
+    todays_trainings_order: 1
+    past_trainings_order: 1
+  )
 
 ##
 ## for test
@@ -256,9 +280,9 @@ $ ->
 #                   (tx, res) -> console?.log 'faixx'
 
   $('#test3').on 'click touch',
-                 ->
-                   console?.log _obj2keysAndVals {id:1, name:'hoge', age:30}
-                   console?.log obj2insertSet {id:1, name:'hoge', age:30}
-                   db.transaction (tx) ->
-                     insertItem tx, {id:3, name:'abxkdjsk', user:'suzuki@', attr:'', ordernum:5}
+                 -> setConfig({db_version:10})
+#                    console?.log _obj2keysAndVals {id:1, name:'hoge', age:30}
+#                    console?.log obj2insertSet {id:1, name:'hoge', age:30}
+#                    db.transaction (tx) ->
+#                      insertItem tx, {id:3, name:'abxkdjsk', user:'suzuki@', attr:'', ordernum:5}
 

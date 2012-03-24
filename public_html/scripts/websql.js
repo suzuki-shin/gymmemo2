@@ -4,7 +4,7 @@
   # config
   */
 
-  var addItem, addTraining, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderTodaysTrainings, selectItems, selectTrainingsByDate, setUp, wrapHtmlList, xxx, _failure_func, _obj2keysAndVals, _res2ItemAll, _res2NameValues, _res2TrainingAll, _success_func;
+  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderTodaysTrainings, selectItems, selectTrainingsByDate, setConfig, setUp, wrapHtmlList, xxx, _failure_func, _obj2keysAndVals, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -246,11 +246,44 @@
   };
 
   setUp = function() {
-    return db.transaction(function(tx) {
+    if (typeof console !== "undefined" && console !== null) console.log('setUp');
+    db.transaction(function(tx) {
       createTableItems(tx);
       createTableTrainings(tx);
       renderItems(tx);
       return renderTodaysTrainings(tx);
+    });
+    return createConfig();
+  };
+
+  getConfig = function() {
+    if (typeof console !== "undefined" && console !== null) {
+      console.log('getConfig');
+    }
+    return JSON.parse(localStorage['config']);
+  };
+
+  setConfig = function(change_config) {
+    var config;
+    config = getConfig();
+    return _setConfig($.extend(config, change_config));
+  };
+
+  _setConfig = function(json) {
+    if (typeof console !== "undefined" && console !== null) {
+      console.log('_setConfig');
+    }
+    return localStorage['config'] = JSON.stringify(json);
+  };
+
+  createConfig = function() {
+    console.log('createConfig');
+    if (localStorage['config'] != null) return;
+    return _setConfig({
+      db_version: 0,
+      localstrage_version: 0,
+      todays_trainings_order: 1,
+      past_trainings_order: 1
     });
   };
 
@@ -355,28 +388,8 @@
       });
     });
     return $('#test3').on('click touch', function() {
-      if (typeof console !== "undefined" && console !== null) {
-        console.log(_obj2keysAndVals({
-          id: 1,
-          name: 'hoge',
-          age: 30
-        }));
-      }
-      if (typeof console !== "undefined" && console !== null) {
-        console.log(obj2insertSet({
-          id: 1,
-          name: 'hoge',
-          age: 30
-        }));
-      }
-      return db.transaction(function(tx) {
-        return insertItem(tx, {
-          id: 3,
-          name: 'abxkdjsk',
-          user: 'suzuki@',
-          attr: '',
-          ordernum: 5
-        });
+      return setConfig({
+        db_version: 10
       });
     });
   });

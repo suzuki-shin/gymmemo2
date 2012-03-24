@@ -1,5 +1,6 @@
-** TODO
-- [ ] localstrageに設定(userとかsort順とか)保存
+* MEMO
+** TODO?
+- [ ] localstrageに設定(userとかsort順とか,tableschemaのバージョンとか)保存
 - [ ] 過去の記録を復活させる
 - [ ] 記録やitemのデータを修正できるようにする
 - [ ] サーバ側に保存する
