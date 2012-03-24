@@ -136,8 +136,8 @@ addTraining = (ev) ->
   db.transaction (tx) ->
     insertTraining tx, {item_id: item_id, value: ev.target.value, created_at: getYYYYMMDD()},
                    (tx, res) ->
-                    renderTodaysTrainings tx
-                    $(ev.target).attr('value', '')
+                     renderTodaysTrainings tx
+                     $(ev.target).attr('value', '')
   false
 
 # _addTraining = (item_id, value, created_at) ->
@@ -240,7 +240,8 @@ $ ->
 
   $('#itemstitle').on 'click touch', -> $('#itemadd').toggle()
   $('#itemadd button').on 'click touch', addItem
-  $(document).on 'change', '#itemlist li input', addTraining
+  $(document).on 'blur', '#itemlist li input', addTraining
+#   $(document).on 'change', '#itemlist li input', addTraining
 
 
 

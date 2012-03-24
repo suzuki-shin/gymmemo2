@@ -354,7 +354,7 @@
       return $('#itemadd').toggle();
     });
     $('#itemadd button').on('click touch', addItem);
-    $(document).on('change', '#itemlist li input', addTraining);
+    $(document).on('blur', '#itemlist li input', addTraining);
     $('#debug').on('click touch', function() {
       $('#showdb').toggle();
       return $('#clear').toggle();
