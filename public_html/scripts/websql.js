@@ -4,7 +4,7 @@
   # config
   */
 
-  var addItem, addTraining, createTableItems, createTableTrainings, db, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderTrainings, selectItems, selectTrainingsByDate, setUp, wrapHtmlList, xxx, _addTraining, _failure_func, _obj2keysAndVals, _res2NameValues, _success_func;
+  var addItem, addTraining, createTableItems, createTableTrainings, db, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderTodaysTrainings, selectItems, selectTrainingsByDate, setUp, wrapHtmlList, xxx, _addTraining, _failure_func, _obj2keysAndVals, _res2NameValues, _success_func;
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -165,12 +165,12 @@
     });
   };
 
-  renderTrainings = function(tx) {
+  renderTodaysTrainings = function(tx) {
     if (typeof console !== "undefined" && console !== null) {
-      console.log('renderTrainings');
+      console.log('renderTodaysTrainings');
     }
     return selectTrainingsByDate(tx, function(tx, res) {
-      return $('#traininglist').empty().append(wrapHtmlList(_res2NameValues(res), 'li').join(''));
+      return $('#todaystraininglist').empty().append(wrapHtmlList(_res2NameValues(res), 'li').join(''));
     });
   };
 
@@ -247,7 +247,7 @@
       createTableItems(tx);
       createTableTrainings(tx);
       renderItems(tx);
-      return renderTrainings(tx);
+      return renderTodaysTrainings(tx);
     });
   };
 
@@ -261,7 +261,7 @@
     $('#test1').on('click touch', function() {
       if (typeof console !== "undefined" && console !== null) console.log('test1');
       return db.transaction(function(tx) {
-        return renderTrainings(tx);
+        return renderTodaysTrainings(tx);
       });
     });
     $('#test2').on('click touch', function() {

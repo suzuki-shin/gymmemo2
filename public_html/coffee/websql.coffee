@@ -100,9 +100,9 @@ renderItems = (tx) ->
   selectItems tx, (tx, res) -> _renderItems res
 
 
-renderTrainings = (tx) ->
-  console?.log 'renderTrainings'
-  selectTrainingsByDate tx, (tx, res) -> $('#traininglist').empty().append wrapHtmlList(_res2NameValues(res), 'li').join('')
+renderTodaysTrainings = (tx) ->
+  console?.log 'renderTodaysTrainings'
+  selectTrainingsByDate tx, (tx, res) -> $('#todaystraininglist').empty().append wrapHtmlList(_res2NameValues(res), 'li').join('')
 
 
 _res2NameValues = (res) ->
@@ -158,7 +158,7 @@ setUp =->
     createTableItems tx
     createTableTrainings tx
     renderItems tx
-    renderTrainings tx
+    renderTodaysTrainings tx
 
 setUp()
 
@@ -172,7 +172,7 @@ $ ->
   $('#test1').on 'click touch', ->
     console?.log 'test1'
     db.transaction (tx) ->
-      renderTrainings tx
+      renderTodaysTrainings tx
 #       renderItems tx
 #       createTableItems tx,
 #                        -> console?.log('suxx'),
