@@ -4,7 +4,7 @@
   # config
   */
 
-  var addItem, addTraining, createTableItems, createTableTrainings, db, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderTodaysTrainings, selectItems, selectTrainingsByDate, setUp, wrapHtmlList, xxx, _addTraining, _failure_func, _obj2keysAndVals, _res2NameValues, _success_func;
+  var addItem, addTraining, createTableItems, createTableTrainings, db, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderTodaysTrainings, selectItems, selectTrainingsByDate, setUp, wrapHtmlList, xxx, _failure_func, _obj2keysAndVals, _res2NameValues, _success_func;
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -201,23 +201,17 @@
     }
     if (!ev.target.value) return;
     item_id = ev.target.id.slice(4, 8);
-    _addTraining(item_id, ev.target.value, getYYYYMMDD());
-    $(ev.target).attr('value', '');
-    renderRecords();
-    return false;
-  };
-
-  _addTraining = function(item_id, value, created_at) {
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('_addTraining');
-    }
-    return db.transaction(function(tx) {
-      return tx.executeSql(select_count_records, [], function(tx, res) {
-        return tx.executeSql(insert_record, [res.rows.item(0).cnt + 1, 1, item_id, value, created_at], function(tx, res) {
-          return '';
-        }, reportError);
+    db.transaction(function(tx) {
+      return insertTraining(tx, {
+        item_id: item_id,
+        value: ev.target.value,
+        created_at: getYYYYMMDD()
+      }, function(tx, res) {
+        renderTodaysTrainings(tx);
+        return $(ev.target).attr('value', '');
       });
     });
+    return false;
   };
 
   getYYYYMMDD = function() {
@@ -258,6 +252,7 @@
       return $('#itemadd').toggle();
     });
     $('#itemadd button').on('click touch', addItem);
+    $(document).on('change', '#itemlist li input', addTraining);
     $('#test1').on('click touch', function() {
       if (typeof console !== "undefined" && console !== null) console.log('test1');
       return db.transaction(function(tx) {

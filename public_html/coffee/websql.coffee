@@ -90,6 +90,11 @@ addItem = (ev) ->
                  $('#itemattr').attr('value', '')
   false
 
+# addTraining = (ev) ->
+#   db.transaction (tx) ->
+#     insertTraining tx {item_id:
+
+
 renderItems = (tx) ->
   console?.log 'renderItems'
   _renderItems = (res) ->
@@ -116,35 +121,36 @@ wrapHtmlList = (list, tag) ->
 
 
 addTraining = (ev) ->
-    console?.log 'addTraining'
-    if not ev.target.value
-        return
+  console?.log 'addTraining'
+  return if not ev.target.value
 
-    item_id = ev.target.id.slice(4,8)
-    _addTraining item_id, ev.target.value, getYYYYMMDD()
-    $(ev.target).attr('value', '')
-    renderRecords()
-    false
+  item_id = ev.target.id.slice(4,8)
+  db.transaction (tx) ->
+    insertTraining tx, {item_id: item_id, value: ev.target.value, created_at: getYYYYMMDD()},
+                   (tx, res) ->
+                    renderTodaysTrainings tx
+                    $(ev.target).attr('value', '')
+  false
 
-_addTraining = (item_id, value, created_at) ->
-    console?.log '_addTraining'
-    db.transaction (tx) ->
-         tx.executeSql select_count_records, [],
-                       (tx, res) ->
-#                            console.log res
-                           tx.executeSql insert_record,
-                                         [res.rows.item(0).cnt + 1, 1, item_id, value, created_at]
-                                         (tx, res) -> ''#console.log res
-                                         reportError
+# _addTraining = (item_id, value, created_at) ->
+#     console?.log '_addTraining'
+#     db.transaction (tx) ->
+#          tx.executeSql select_count_records, [],
+#                        (tx, res) ->
+# #                            console.log res
+#                            tx.executeSql insert_record,
+#                                          [res.rows.item(0).cnt + 1, 1, item_id, value, created_at]
+#                                          (tx, res) -> ''#console.log res
+#                                          reportError
 
 getYYYYMMDD =->
-    dt = new Date()
-    yyyy = dt.getFullYear()
-    mm = dt.getMonth() + 1
-    mm = '0' + mm if mm < 10
-    dd = dt.getDate()
-    dd = '0' + dd if dd.length < 10
-    return yyyy + '/' + mm + '/' + dd
+  dt = new Date()
+  yyyy = dt.getFullYear()
+  mm = dt.getMonth() + 1
+  mm = '0' + mm if mm < 10
+  dd = dt.getDate()
+  dd = '0' + dd if dd.length < 10
+  return yyyy + '/' + mm + '/' + dd
 
 
 xxx = (res) ->
@@ -165,7 +171,7 @@ setUp()
 $ ->
   $('#itemstitle').on 'click touch', -> $('#itemadd').toggle()
   $('#itemadd button').on 'click touch', addItem
-
+  $(document).on 'change', '#itemlist li input', addTraining
 
 
 
