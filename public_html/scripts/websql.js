@@ -120,7 +120,52 @@
         });
       });
     });
-    return $('#test3').on('click', function() {
+    $('#test3').on('click', function() {
+      if (typeof console !== "undefined" && console !== null) {
+        console.log(_obj2keysAndVals({
+          id: 1,
+          name: 'hoge',
+          age: 30
+        }));
+      }
+      if (typeof console !== "undefined" && console !== null) {
+        console.log(obj2insertSet({
+          id: 1,
+          name: 'hoge',
+          age: 30
+        }));
+      }
+      return db.transaction(function(tx) {
+        return insertItems(tx, {
+          id: 3,
+          name: 'abxkdjsk',
+          user: 'suzuki@',
+          attr: '',
+          ordernum: 5
+        });
+      });
+    });
+    $('#test1').on('touch', function() {
+      if (typeof console !== "undefined" && console !== null) console.log('test1');
+      return db.transaction(function(tx) {
+        return createTableItems(tx, function() {
+          return typeof console !== "undefined" && console !== null ? console.log('suxx') : void 0;
+        }, function() {
+          return typeof console !== "undefined" && console !== null ? console.log('faixx') : void 0;
+        });
+      });
+    });
+    $('#test2').on('touch', function() {
+      if (typeof console !== "undefined" && console !== null) console.log('test2');
+      return db.transaction(function(tx) {
+        return selectItems(tx, function(tx, res) {
+          return hoge(res);
+        }, function(tx, res) {
+          return typeof console !== "undefined" && console !== null ? console.log('faixx') : void 0;
+        });
+      });
+    });
+    return $('#test3').on('touch', function() {
       if (typeof console !== "undefined" && console !== null) {
         console.log(_obj2keysAndVals({
           id: 1,

@@ -88,6 +88,28 @@ $ ->
                    db.transaction (tx) ->
                      insertItems tx, {id:3, name:'abxkdjsk', user:'suzuki@', attr:'', ordernum:5}
 
+  $('#test1').on 'touch', ->
+    console?.log 'test1'
+    db.transaction (tx) ->
+      createTableItems tx,
+                       -> console?.log('suxx'),
+                       -> console?.log('faixx')
+
+  $('#test2').on 'touch', ->
+    console?.log 'test2'
+    db.transaction (tx) ->
+      selectItems tx,
+                  (tx, res) -> hoge res
+                  (tx, res) -> console?.log 'faixx'
+
+  $('#test3').on 'touch',
+                 ->
+                   console?.log _obj2keysAndVals {id:1, name:'hoge', age:30}
+                   console?.log obj2insertSet {id:1, name:'hoge', age:30}
+                   db.transaction (tx) ->
+                     insertItems tx, {id:3, name:'abxkdjsk', user:'suzuki@', attr:'', ordernum:5}
+
+
 #   $('#test1').on 'touch', createTableHoge
 #   $('#test2').on 'click', insertHoge
 #   $('#test2').on 'touch', insertHoge
