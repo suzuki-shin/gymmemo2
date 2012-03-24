@@ -3,6 +3,13 @@
 ###
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
 
+_success_func = (tx) ->
+  console?.log 'OK'
+  console?.log tx
+_failure_func = (tx) ->
+  console?.log 'NG'
+  console?.log tx
+
 createTableItems = (tx, success_func, failure_func) ->
   console?.log 'createTableItems'
   tx.executeSql 'create table if not exists items (id int, name text, user text, attr text, is_saved int default 0, ordernum int)',
@@ -17,20 +24,47 @@ selectItems = (tx, success_func, failure_func) ->
                 success_func,
                 failure_func
 
-insertItems = (tx, obj, success_func, failure_func) ->
+insertItems = (tx, obj, success_func = _success_func, failure_func = _failure_func) ->
   console?.log 'insertItems'
-  [set, params] = _obj2set obj
-  tx.executeSql 'insert into items set '+ set, vals, success_func, failure_func
+  [set, params] = obj2insertSet obj
+  console?.log set
+  console?.log params
+  tx.executeSql 'insert into items ' + set, params,
+                success_func,
+                failure_func
 
-_obj2set = (obj) ->
-  # obj = {'id' : 1, 'name':'hoge', 'user':'xxx@mail.com', 'attr':'minutes', 'ordernum':1}
+_obj2keysAndVals = (obj) ->
   keys = []
   vals = []
-  for k,v in obj
-    keys.append(k)
-    vals.append(v)
+  for k,v of obj
+    keys.push(k)
+    vals.push(v)
 
   [keys, vals]
+
+# obj = {'id' : 1, 'name':'hoge', 'user':'xxx@mail.com', 'attr':'minutes', 'ordernum':1}
+# のようなデータを受け取り
+# ['(id, name, user, attr, ordernum) values (?,?,?,?,?)', (1,'hoge','xxx@mail.com','minutes',1)]
+# のようなデータにして返す
+obj2insertSet = (obj) ->
+  [keys, vals] = _obj2keysAndVals(obj)
+  ['(' + keys.join(',') + ') values (' + ('?' for v in vals).join(',') + ')', vals]
+
+# obj = {'id' : 1, 'name':'hoge', 'user':'xxx@mail.com', 'attr':'minutes', 'ordernum':1}
+# のようなデータを受け取り
+# ['set id = ?, name = ?, user = ?, attr = ?, ordernum = ?', (1,'hoge','xxx@mail.com','minutes',1)]
+# のようなデータにして返す
+obj2upateSet = (obj) ->
+  # obj = {'id' : 1, 'name':'hoge', 'user':'xxx@mail.com', 'attr':'minutes', 'ordernum':1}
+  [keys, vals] = _obj2keysAndVals(obj)
+  [' set ' + (k + ' = ?' for k in keys).join(','), vals]
+
+hoge = (res) ->
+  len = res.rows.length
+  for i in [0...len]
+    console?.log res.rows.item(i)
+  #     console.log (cols[j] + ': ' +  res.rows.item(i)[cols[j]] for j in [0...cols.length])
+
 
 $ ->
   $('#test1').on 'click', ->
@@ -44,8 +78,15 @@ $ ->
     console?.log 'test2'
     db.transaction (tx) ->
       selectItems tx,
-                  (tx, res) -> console?.log res.rows.length
+                  (tx, res) -> hoge res
                   (tx, res) -> console?.log 'faixx'
+
+  $('#test3').on 'click',
+                 ->
+                   console?.log _obj2keysAndVals {id:1, name:'hoge', age:30}
+                   console?.log obj2insertSet {id:1, name:'hoge', age:30}
+                   db.transaction (tx) ->
+                     insertItems tx, {id:3, name:'abxkdjsk', user:'suzuki@', attr:'', ordernum:5}
 
 #   $('#test1').on 'touch', createTableHoge
 #   $('#test2').on 'click', insertHoge

@@ -4,58 +4,58 @@
     <meta charset="utf-8" />
     <link type="text/css" rel="stylesheet" href="css/main.css" />
     <link type="text/css" rel="stylesheet"
-		  href="/stylesheets/iphone.css" media="only screen and (max-width: 480px)" />
+          href="/stylesheets/iphone.css" media="only screen and (max-width: 480px)" />
 <!--     <link type="text/css" rel="stylesheet" href="/stylesheets/debug.css" /> -->
 <!--     <script type="text/javascript" src="/scripts/jquery.js"></script> -->
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <!--     <script type="text/javascript" src="/js/gymmemo.js"></script> -->
     <script type="text/javascript" src="scripts/websql.js"></script>
     <script type="text/javascript" src="scripts/gymmemo2.js"></script>
-	<meta name="viewport" content="user-scalable=no, width=device-width" />
+    <meta name="viewport" content="user-scalable=no, width=device-width" />
   </head>
   <body>
-	<div id="container">
-	  <div id="header">
-		<h1><a href="/">GYMMEMO</a></h1>
-	  </div>
-	  <div id="content">
-		<h2 id="itemstitle">トレーニング種目 +</h2>
-		<div id="items">
-		  <form id="itemadd" style="display:none;">
-			<input type="text" id="itemname" name="itemname" value="" />
-			<select name="itemattr" id="itemattr">
-			  <option value="" />
-			  <option value="回" />回
-			  <option value="分" />分
-			  <option value="kg" />kg
-			</select>
-			<button>登録</button>
-		  </form>
-		  <ul id="itemlist">
-		  </ul>
-		</div>
-		<h2 id="recordstitle">今日のトレーニング記録</h2>
-		<div id="records">
-		  <ul id="recordlist">
-		  </ul>
-		</div>
-		<h2 id="pastrecordstitle">過去のトレーニング記録</h2>
-		<div id="pastrecords">
-		  <p id="recordsubtitle"></p>
-		  <ul id="pastrecordlist">
-		  </ul>
-		</div>
-		<p id="orderconfig">A</p>
-	  </div>
-	  <p id="test1">test1</p>
-	  <p id="test2">test2</p>
-	  <p id="test3">test3</p>
-	  <div><span id="debug" style="color:#333">[debug]</span>
-		<p id="clear" style="display:none;">テーブルをDROPする</p>
-		<p id="showtable" style="display:none;">テーブルを見る</p>
-		<p id="showdata" style="display:none;">データを見る</p>
-		<p id="save" style="display:none;">サーバに保存する!</p>
-	  </div>
-	</div>
+    <div id="container">
+      <div id="header">
+        <h1><a href="/">GYMMEMO</a></h1>
+      </div>
+      <div id="content">
+        <h2 id="itemstitle">トレーニング種目 +</h2>
+        <div id="items">
+          <form id="itemadd" style="display:none;">
+            <input type="text" id="itemname" name="itemname" value="" />
+            <select name="itemattr" id="itemattr">
+              <option value="" />
+              <option value="回" />回
+              <option value="分" />分
+              <option value="kg" />kg
+            </select>
+            <button>登録</button>
+          </form>
+          <ul id="itemlist">
+          </ul>
+        </div>
+        <h2 id="trainingstitle">今日のトレーニング記録</h2>
+        <div id="trainings">
+          <ul id="traininglist">
+          </ul>
+        </div>
+        <h2 id="pasttrainingstitle">過去のトレーニング記録</h2>
+        <div id="pasttrainings">
+          <p id="trainingsubtitle"></p>
+          <ul id="pasttraininglist">
+          </ul>
+        </div>
+        <p id="orderconfig">A</p>
+      </div>
+      <p id="test1">test1</p>
+      <p id="test2">test2</p>
+      <p id="test3">test3</p>
+      <div><span id="debug" style="color:#333">[debug]</span>
+        <p id="clear" style="display:none;">テーブルをDROPする</p>
+        <p id="showtable" style="display:none;">テーブルを見る</p>
+        <p id="showdata" style="display:none;">データを見る</p>
+        <p id="save" style="display:none;">サーバに保存する!</p>
+      </div>
+    </div>
   </body>
 </html>
