@@ -33,13 +33,16 @@ insertItems = (tx, obj, success_func = _success_func, failure_func = _failure_fu
                 success_func,
                 failure_func
 
+# obj = {'id' : 1, 'name':'hoge', 'user':'xxx@mail.com', 'attr':'minutes', 'ordernum':1}
+# のようなデータを受け取り
+# [('id', 'name', 'user', 'attr', 'ordernum'), (1,'hoge','xxx@mail.com','minutes',1)]
+# のようなデータにして返す
 _obj2keysAndVals = (obj) ->
   keys = []
   vals = []
   for k,v of obj
     keys.push(k)
     vals.push(v)
-
   [keys, vals]
 
 # obj = {'id' : 1, 'name':'hoge', 'user':'xxx@mail.com', 'attr':'minutes', 'ordernum':1}
@@ -67,55 +70,28 @@ hoge = (res) ->
 
 
 $ ->
-  $('#test1').on 'click', ->
+  $('#itemstitle').on 'click touch',
+                      ->
+                        $('#itemadd').toggle()
+
+  $('#test1').on 'click touch', ->
     console?.log 'test1'
     db.transaction (tx) ->
       createTableItems tx,
                        -> console?.log('suxx'),
                        -> console?.log('faixx')
 
-  $('#test2').on 'click', ->
+  $('#test2').on 'click touch', ->
     console?.log 'test2'
     db.transaction (tx) ->
       selectItems tx,
                   (tx, res) -> hoge res
                   (tx, res) -> console?.log 'faixx'
 
-  $('#test3').on 'click',
+  $('#test3').on 'click touch',
                  ->
                    console?.log _obj2keysAndVals {id:1, name:'hoge', age:30}
                    console?.log obj2insertSet {id:1, name:'hoge', age:30}
                    db.transaction (tx) ->
                      insertItems tx, {id:3, name:'abxkdjsk', user:'suzuki@', attr:'', ordernum:5}
 
-  $('#test1').on 'touch', ->
-    console?.log 'test1'
-    db.transaction (tx) ->
-      createTableItems tx,
-                       -> console?.log('suxx'),
-                       -> console?.log('faixx')
-
-  $('#test2').on 'touch', ->
-    console?.log 'test2'
-    db.transaction (tx) ->
-      selectItems tx,
-                  (tx, res) -> hoge res
-                  (tx, res) -> console?.log 'faixx'
-
-  $('#test3').on 'touch',
-                 ->
-                   console?.log _obj2keysAndVals {id:1, name:'hoge', age:30}
-                   console?.log obj2insertSet {id:1, name:'hoge', age:30}
-                   db.transaction (tx) ->
-                     insertItems tx, {id:3, name:'abxkdjsk', user:'suzuki@', attr:'', ordernum:5}
-
-
-#   $('#test1').on 'touch', createTableHoge
-#   $('#test2').on 'click', insertHoge
-#   $('#test2').on 'touch', insertHoge
-#   $('#test3').on 'click', (ev) ->
-#     db.transaction (tx) ->
-#       execSql tx, 'select * from hoge', [], selectToTable('hoge', ['age','name'], $('#recordstitle'))
-#   $('#test3').on 'touch', (ev) ->
-#     db.transaction (tx) ->
-#       execSql tx, 'select * from hoge', [], selectToTable('hoge', ['age','name'], $('#recordstitle'))
