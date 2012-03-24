@@ -10,29 +10,6 @@ _failure_func = (tx) ->
   console?.log 'NG'
   console?.log tx
 
-createTableItems = (tx, success_func, failure_func) ->
-  console?.log 'createTableItems'
-  tx.executeSql 'create table if not exists items (id int, name text, user text, attr text, is_saved int default 0, ordernum int)',
-  #tx.executeSql 'create table if not exists items (id int, name text)',
-                [],
-                success_func,
-                failure_func
-
-selectItems = (tx, success_func, failure_func) ->
-  console?.log 'selectItemsCount'
-  tx.executeSql 'select * from items', [],
-                success_func,
-                failure_func
-
-insertItems = (tx, obj, success_func = _success_func, failure_func = _failure_func) ->
-  console?.log 'insertItems'
-  [set, params] = obj2insertSet obj
-  console?.log set
-  console?.log params
-  tx.executeSql 'insert into items ' + set, params,
-                success_func,
-                failure_func
-
 # obj = {'id' : 1, 'name':'hoge', 'user':'xxx@mail.com', 'attr':'minutes', 'ordernum':1}
 # のようなデータを受け取り
 # [('id', 'name', 'user', 'attr', 'ordernum'), (1,'hoge','xxx@mail.com','minutes',1)]
@@ -62,17 +39,51 @@ obj2upateSet = (obj) ->
   [keys, vals] = _obj2keysAndVals(obj)
   [' set ' + (k + ' = ?' for k in keys).join(','), vals]
 
-hoge = (res) ->
+createTableItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
+  console?.log 'createTableItems'
+  tx.executeSql 'CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, attr TEXT, is_saved INT DEFAULT 0 NOT NULL, ordernum INT)', [],
+                success_func,
+                failure_func
+
+selectItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
+  console?.log 'selectItems'
+  tx.executeSql 'select * from items', [],
+                success_func,
+                failure_func
+
+insertItem = (tx, obj, success_func = _success_func, failure_func = _failure_func) ->
+  console?.log 'insertItem'
+  [set, params] = obj2insertSet obj
+  console?.log set
+  console?.log params
+  tx.executeSql 'insert into items ' + set, params,
+                success_func,
+                failure_func
+
+
+addItem = (ev) ->
+  db.transaction (tx) ->
+    insertItem tx, {name: $('#itemname').attr('value') or null, attr: $('#itemattr').attr('value') or null}
+  false
+
+xxx = (res) ->
+  console?.log 'xxx'
   len = res.rows.length
   for i in [0...len]
     console?.log res.rows.item(i)
-  #     console.log (cols[j] + ': ' +  res.rows.item(i)[cols[j]] for j in [0...cols.length])
 
+setUp =->
+  db.transaction (tx) ->
+    createTableItems tx
+
+setUp()
 
 $ ->
-  $('#itemstitle').on 'click touch',
-                      ->
-                        $('#itemadd').toggle()
+  $('#itemstitle').on 'click touch', -> $('#itemadd').toggle()
+  $('#itemadd button').on 'click touch', addItem
+
+
+
 
   $('#test1').on 'click touch', ->
     console?.log 'test1'
@@ -85,7 +96,7 @@ $ ->
     console?.log 'test2'
     db.transaction (tx) ->
       selectItems tx,
-                  (tx, res) -> hoge res
+                  (tx, res) -> xxx res
                   (tx, res) -> console?.log 'faixx'
 
   $('#test3').on 'click touch',
@@ -93,5 +104,5 @@ $ ->
                    console?.log _obj2keysAndVals {id:1, name:'hoge', age:30}
                    console?.log obj2insertSet {id:1, name:'hoge', age:30}
                    db.transaction (tx) ->
-                     insertItems tx, {id:3, name:'abxkdjsk', user:'suzuki@', attr:'', ordernum:5}
+                     insertItem tx, {id:3, name:'abxkdjsk', user:'suzuki@', attr:'', ordernum:5}
 
