@@ -191,6 +191,23 @@ debugSelectTrainings =->
                   (tx, res) ->
                     $('#showdb').append wrapHtmlList(_res2TrainingAll(res), 'li').join('')
 
+dropTableItems =->
+  if not confirm 'itemsテーブルをdropして良いですか？'
+    return
+
+  db.transaction (tx) ->
+    tx.executeSql 'DROP TABLE items', [],
+                  -> alert 'error: dropTableItems',
+                  -> alert 'success: dropTableItems',
+
+dropTableTrainings =->
+  if not confirm 'trainingsテーブルをdropして良いですか？'
+    return
+  alert 'iii'
+  db.transaction (tx) ->
+    tx.executeSql 'DROP TABLE trainings', [],
+                  -> alert 'error: dropTableTrainings',
+                  -> alert 'success: dropTableTrainings',
 
 
 
@@ -204,11 +221,16 @@ $ ->
 
 
   $('#debug').on 'click touch',
-                 -> $('#showdb').toggle()
+                 ->
+                   $('#showdb').toggle()
+                   $('#clear').toggle()
 
   $('#showdb').click ->
     debugSelectItems()
     debugSelectTrainings()
+  $('#clear').click ->
+    dropTableItems()
+    dropTableTrainings()
 
   $('#test1').on 'click touch', ->
     console?.log 'test1'

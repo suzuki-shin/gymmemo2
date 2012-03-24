@@ -4,7 +4,7 @@
   # config
   */
 
-  var addItem, addTraining, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderTodaysTrainings, selectItems, selectTrainingsByDate, setUp, wrapHtmlList, xxx, _failure_func, _obj2keysAndVals, _res2ItemAll, _res2NameValues, _res2TrainingAll, _success_func;
+  var addItem, addTraining, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderTodaysTrainings, selectItems, selectTrainingsByDate, setUp, wrapHtmlList, xxx, _failure_func, _obj2keysAndVals, _res2ItemAll, _res2NameValues, _res2TrainingAll, _success_func;
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -292,6 +292,29 @@
     });
   };
 
+  dropTableItems = function() {
+    if (!confirm('itemsテーブルをdropして良いですか？')) return;
+    return db.transaction(function(tx) {
+      return tx.executeSql('DROP TABLE items', [], function() {
+        return alert('error: dropTableItems');
+      }, function() {
+        return alert('success: dropTableItems');
+      });
+    });
+  };
+
+  dropTableTrainings = function() {
+    if (!confirm('trainingsテーブルをdropして良いですか？')) return;
+    alert('iii');
+    return db.transaction(function(tx) {
+      return tx.executeSql('DROP TABLE trainings', [], function() {
+        return alert('error: dropTableTrainings');
+      }, function() {
+        return alert('success: dropTableTrainings');
+      });
+    });
+  };
+
   $(function() {
     setUp();
     $('#itemstitle').on('click touch', function() {
@@ -300,11 +323,16 @@
     $('#itemadd button').on('click touch', addItem);
     $(document).on('change', '#itemlist li input', addTraining);
     $('#debug').on('click touch', function() {
-      return $('#showdb').toggle();
+      $('#showdb').toggle();
+      return $('#clear').toggle();
     });
     $('#showdb').click(function() {
       debugSelectItems();
       return debugSelectTrainings();
+    });
+    $('#clear').click(function() {
+      dropTableItems();
+      return dropTableTrainings();
     });
     $('#test1').on('click touch', function() {
       if (typeof console !== "undefined" && console !== null) console.log('test1');
