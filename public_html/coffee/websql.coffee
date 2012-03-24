@@ -153,11 +153,11 @@ getYYYYMMDD =->
   return yyyy + '/' + mm + '/' + dd
 
 
-xxx = (res) ->
+xxx = (res, func = (x) -> x) ->
   console?.log 'xxx'
   len = res.rows.length
   for i in [0...len]
-    console?.log res.rows.item(i)
+    console?.log func(res.rows.item(i))
 
 setUp =->
   db.transaction (tx) ->
@@ -187,7 +187,10 @@ $ ->
 
   $('#test2').on 'click touch', ->
     console?.log 'test2'
-    console?.log getYYYYMMDD()
+    db.transaction (tx) ->
+      selectTrainingsByDate tx,
+                            (tx, res) -> xxx(res, (x) -> x.attr + ':' + x.created_at + ':' + x.item_id + ':' + x.name)
+#     console?.log getYYYYMMDD()
 #     console?.log wrapHtmlList [1..5], 'li'
 #     db.transaction (tx) ->
 #       selectItems tx,

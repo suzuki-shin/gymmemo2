@@ -225,13 +225,18 @@
     return yyyy + '/' + mm + '/' + dd;
   };
 
-  xxx = function(res) {
+  xxx = function(res, func) {
     var i, len, _results;
+    if (func == null) {
+      func = function(x) {
+        return x;
+      };
+    }
     if (typeof console !== "undefined" && console !== null) console.log('xxx');
     len = res.rows.length;
     _results = [];
     for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
-      _results.push(typeof console !== "undefined" && console !== null ? console.log(res.rows.item(i)) : void 0);
+      _results.push(typeof console !== "undefined" && console !== null ? console.log(func(res.rows.item(i))) : void 0);
     }
     return _results;
   };
@@ -260,7 +265,13 @@
     });
     $('#test2').on('click touch', function() {
       if (typeof console !== "undefined" && console !== null) console.log('test2');
-      return typeof console !== "undefined" && console !== null ? console.log(getYYYYMMDD()) : void 0;
+      return db.transaction(function(tx) {
+        return selectTrainingsByDate(tx, function(tx, res) {
+          return xxx(res, function(x) {
+            return x.attr + ':' + x.created_at + ':' + x.item_id + ':' + x.name;
+          });
+        });
+      });
     });
     return $('#test3').on('click touch', function() {
       if (typeof console !== "undefined" && console !== null) {
