@@ -98,7 +98,7 @@
     if (typeof console !== "undefined" && console !== null) {
       console.log('selectTrainingsByDate');
     }
-    SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings tr LEFT JOIN items it ON tr.item_id = it.id WHERE tr.created_at = ? ORDER BY tr.id ';
+    SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings AS tr LEFT JOIN items AS it ON tr.item_id = it.id WHERE tr.created_at = ? ORDER BY tr.id ';
     return tx.executeSql(SELECT_TRAININGS_BY_DATE, [getYYYYMMDD()], success_func, failure_func);
   };
 
@@ -258,10 +258,7 @@
     $('#itemadd button').on('click touch', addItem);
     $(document).on('change', '#itemlist li input', addTraining);
     $('#test1').on('click touch', function() {
-      if (typeof console !== "undefined" && console !== null) console.log('test1');
-      return db.transaction(function(tx) {
-        return renderTodaysTrainings(tx);
-      });
+      return typeof console !== "undefined" && console !== null ? console.log('test1') : void 0;
     });
     $('#test2').on('click touch', function() {
       if (typeof console !== "undefined" && console !== null) console.log('test2');
