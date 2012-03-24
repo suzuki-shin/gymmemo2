@@ -2,6 +2,7 @@
 # config
 ###
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
+order = [' ASC ', ' DESC ']
 
 _success_func = (tx) ->
   console?.log 'OK'
@@ -35,13 +36,18 @@ obj2insertSet = (obj) ->
 # ['set id = ?, name = ?, user = ?, attr = ?, ordernum = ?', (1,'hoge','xxx@mail.com','minutes',1)]
 # のようなデータにして返す
 obj2upateSet = (obj) ->
-  # obj = {'id' : 1, 'name':'hoge', 'user':'xxx@mail.com', 'attr':'minutes', 'ordernum':1}
   [keys, vals] = _obj2keysAndVals(obj)
   [' set ' + (k + ' = ?' for k in keys).join(','), vals]
 
 createTableItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
   console?.log 'createTableItems'
-  tx.executeSql 'CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, attr TEXT, is_saved INT DEFAULT 0 NOT NULL, ordernum INT DEFAULT 0)', [],
+  tx.executeSql 'CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, attr TEXT, is_saved INT DEFAULT 0 NOT NULL, ordernum INT DEFAULT 0, is_active INTEGER DEFAULT 1)', [],
+                success_func,
+                failure_func
+
+createTableTrainings = (tx, success_func = _success_func, failure_func = _failure_func) ->
+  console?.log 'createTableTrainings'
+  tx.executeSql 'CREATE TABLE IF NOT EXISTS trainings (id INTEGER PRIMARY KEY AUTOINCREMENT, item_id INTEGER NOT NULL, value INTEGER NOT NULL, created_at TEXT, is_saved INT DEFAULT 0 NOT NULL)', [],
                 success_func,
                 failure_func
 
@@ -51,12 +57,26 @@ selectItems = (tx, success_func = _success_func, failure_func = _failure_func) -
                 success_func,
                 failure_func
 
+selectTrainingsByDate = (tx, success_func = _success_func, failure_func = _failure_func) ->
+  console?.log 'selectTrainingsByDate'
+  SELECT_TRAININGS_BY_DATE = 'SELECT * FROM trainings tr LEFT JOIN items it ON tr.item_id = it.id WHERE tr.created_at = ? ORDER BY tr.id '# + order[config['todays_training_order']]
+  tx.executeSql SELECT_TRAININGS_BY_DATE, [getYYYYMMDD()],
+                success_func,
+                failure_func
+
 insertItem = (tx, obj, success_func = _success_func, failure_func = _failure_func) ->
-  console?.log 'insertItem'
+  insertData tx, 'items', obj, success_func, failure_func
+
+insertTraining = (tx, obj, success_func = _success_func, failure_func = _failure_func) ->
+  insertData tx, 'trainings', obj, success_func, failure_func
+
+insertData = (tx, table, obj, success_func = _success_func, failure_func = _failure_func) ->
+  console?.log 'insertData'
   [set, params] = obj2insertSet obj
+  console?.log table
   console?.log set
   console?.log params
-  tx.executeSql 'insert into items ' + set, params,
+  tx.executeSql 'insert into ' + table + ' ' + set, params,
                 success_func,
                 failure_func
 
@@ -77,13 +97,54 @@ renderItems = (tx) ->
       len = res.rows.length
       (res.rows.item(i).name + '<input type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr for i in [0...len])
     $('#itemlist').empty().append wrapHtmlList(_res2inputElems(res), 'li').join('')
-
   selectItems tx, (tx, res) -> _renderItems res
+
+
+renderTrainings = (tx) ->
+  console?.log 'renderTrainings'
+  selectTrainingsByDate tx, (tx, res) -> $('#traininglist').empty().append wrapHtmlList(_res2NameValues(res), 'li').join('')
+
+
+_res2NameValues = (res) ->
+    len = res.rows.length
+    (res.rows.item(i).name + ' ' + res.rows.item(i).value + res.rows.item(i).attr for i in [0...len])
+
 
 
 wrapHtmlList = (list, tag) ->
     ('<' + tag + '>' + l + '</' + tag + '>' for l in list)
 
+
+addTraining = (ev) ->
+    console?.log 'addTraining'
+    if not ev.target.value
+        return
+
+    item_id = ev.target.id.slice(4,8)
+    _addTraining item_id, ev.target.value, getYYYYMMDD()
+    $(ev.target).attr('value', '')
+    renderRecords()
+    false
+
+_addTraining = (item_id, value, created_at) ->
+    console?.log '_addTraining'
+    db.transaction (tx) ->
+         tx.executeSql select_count_records, [],
+                       (tx, res) ->
+#                            console.log res
+                           tx.executeSql insert_record,
+                                         [res.rows.item(0).cnt + 1, 1, item_id, value, created_at]
+                                         (tx, res) -> ''#console.log res
+                                         reportError
+
+getYYYYMMDD =->
+    dt = new Date()
+    yyyy = dt.getFullYear()
+    mm = dt.getMonth() + 1
+    mm = '0' + mm if mm < 10
+    dd = dt.getDate()
+    dd = '0' + dd if dd.length < 10
+    return yyyy + '/' + mm + '/' + dd
 
 
 xxx = (res) ->
@@ -95,7 +156,9 @@ xxx = (res) ->
 setUp =->
   db.transaction (tx) ->
     createTableItems tx
+    createTableTrainings tx
     renderItems tx
+    renderTrainings tx
 
 setUp()
 
@@ -109,14 +172,16 @@ $ ->
   $('#test1').on 'click touch', ->
     console?.log 'test1'
     db.transaction (tx) ->
-      renderItems tx
+      renderTrainings tx
+#       renderItems tx
 #       createTableItems tx,
 #                        -> console?.log('suxx'),
 #                        -> console?.log('faixx')
 
   $('#test2').on 'click touch', ->
     console?.log 'test2'
-    console?.log wrapHtmlList [1..5], 'li'
+    console?.log getYYYYMMDD()
+#     console?.log wrapHtmlList [1..5], 'li'
 #     db.transaction (tx) ->
 #       selectItems tx,
 #                   (tx, res) -> xxx res
