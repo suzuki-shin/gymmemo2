@@ -4,7 +4,7 @@
   # config
   */
 
-  var addItem, createTableItems, db, insertItem, obj2insertSet, obj2upateSet, selectItems, setUp, xxx, _failure_func, _obj2keysAndVals, _success_func;
+  var addItem, createTableItems, db, insertItem, obj2insertSet, obj2upateSet, renderItems, selectItems, setUp, wrapHtmlList, xxx, _failure_func, _obj2keysAndVals, _success_func;
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -68,7 +68,7 @@
     if (typeof console !== "undefined" && console !== null) {
       console.log('createTableItems');
     }
-    return tx.executeSql('CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, attr TEXT, is_saved INT DEFAULT 0 NOT NULL, ordernum INT)', [], success_func, failure_func);
+    return tx.executeSql('CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, attr TEXT, is_saved INT DEFAULT 0 NOT NULL, ordernum INT DEFAULT 0)', [], success_func, failure_func);
   };
 
   selectItems = function(tx, success_func, failure_func) {
@@ -77,7 +77,7 @@
     if (typeof console !== "undefined" && console !== null) {
       console.log('selectItems');
     }
-    return tx.executeSql('select * from items', [], success_func, failure_func);
+    return tx.executeSql('select * from items order by ordernum asc', [], success_func, failure_func);
   };
 
   insertItem = function(tx, obj, success_func, failure_func) {
@@ -97,10 +97,47 @@
     db.transaction(function(tx) {
       return insertItem(tx, {
         name: $('#itemname').attr('value') || null,
-        attr: $('#itemattr').attr('value') || null
+        attr: $('#itemattr').attr('value')
+      }, function(tx) {
+        renderItems(tx);
+        $('#itemname').attr('value', '');
+        return $('#itemattr').attr('value', '');
       });
     });
     return false;
+  };
+
+  renderItems = function(tx) {
+    var _renderItems;
+    if (typeof console !== "undefined" && console !== null) {
+      console.log('renderItems');
+    }
+    _renderItems = function(res) {
+      var _res2inputElems;
+      _res2inputElems = function(res) {
+        var i, len, _results;
+        len = res.rows.length;
+        _results = [];
+        for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
+          _results.push(res.rows.item(i).name + '<input type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr);
+        }
+        return _results;
+      };
+      return $('#itemlist').empty().append(wrapHtmlList(_res2inputElems(res), 'li').join(''));
+    };
+    return selectItems(tx, function(tx, res) {
+      return _renderItems(res);
+    });
+  };
+
+  wrapHtmlList = function(list, tag) {
+    var l, _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = list.length; _i < _len; _i++) {
+      l = list[_i];
+      _results.push('<' + tag + '>' + l + '</' + tag + '>');
+    }
+    return _results;
   };
 
   xxx = function(res) {
@@ -116,7 +153,8 @@
 
   setUp = function() {
     return db.transaction(function(tx) {
-      return createTableItems(tx);
+      createTableItems(tx);
+      return renderItems(tx);
     });
   };
 
@@ -130,22 +168,12 @@
     $('#test1').on('click touch', function() {
       if (typeof console !== "undefined" && console !== null) console.log('test1');
       return db.transaction(function(tx) {
-        return createTableItems(tx, function() {
-          return typeof console !== "undefined" && console !== null ? console.log('suxx') : void 0;
-        }, function() {
-          return typeof console !== "undefined" && console !== null ? console.log('faixx') : void 0;
-        });
+        return renderItems(tx);
       });
     });
     $('#test2').on('click touch', function() {
       if (typeof console !== "undefined" && console !== null) console.log('test2');
-      return db.transaction(function(tx) {
-        return selectItems(tx, function(tx, res) {
-          return xxx(res);
-        }, function(tx, res) {
-          return typeof console !== "undefined" && console !== null ? console.log('faixx') : void 0;
-        });
-      });
+      return typeof console !== "undefined" && console !== null ? console.log(wrapHtmlList([1, 2, 3, 4, 5], 'li')) : void 0;
     });
     return $('#test3').on('click touch', function() {
       if (typeof console !== "undefined" && console !== null) {

@@ -41,13 +41,13 @@ obj2upateSet = (obj) ->
 
 createTableItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
   console?.log 'createTableItems'
-  tx.executeSql 'CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, attr TEXT, is_saved INT DEFAULT 0 NOT NULL, ordernum INT)', [],
+  tx.executeSql 'CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, attr TEXT, is_saved INT DEFAULT 0 NOT NULL, ordernum INT DEFAULT 0)', [],
                 success_func,
                 failure_func
 
 selectItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
   console?.log 'selectItems'
-  tx.executeSql 'select * from items', [],
+  tx.executeSql 'select * from items order by ordernum asc', [],
                 success_func,
                 failure_func
 
@@ -63,8 +63,28 @@ insertItem = (tx, obj, success_func = _success_func, failure_func = _failure_fun
 
 addItem = (ev) ->
   db.transaction (tx) ->
-    insertItem tx, {name: $('#itemname').attr('value') or null, attr: $('#itemattr').attr('value') or null}
+    insertItem tx, {name: $('#itemname').attr('value') or null, attr: $('#itemattr').attr('value')},
+               (tx) ->
+                 renderItems tx
+                 $('#itemname').attr('value', '')
+                 $('#itemattr').attr('value', '')
   false
+
+renderItems = (tx) ->
+  console?.log 'renderItems'
+  _renderItems = (res) ->
+    _res2inputElems = (res) ->
+      len = res.rows.length
+      (res.rows.item(i).name + '<input type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr for i in [0...len])
+    $('#itemlist').empty().append wrapHtmlList(_res2inputElems(res), 'li').join('')
+
+  selectItems tx, (tx, res) -> _renderItems res
+
+
+wrapHtmlList = (list, tag) ->
+    ('<' + tag + '>' + l + '</' + tag + '>' for l in list)
+
+
 
 xxx = (res) ->
   console?.log 'xxx'
@@ -75,6 +95,7 @@ xxx = (res) ->
 setUp =->
   db.transaction (tx) ->
     createTableItems tx
+    renderItems tx
 
 setUp()
 
@@ -88,16 +109,18 @@ $ ->
   $('#test1').on 'click touch', ->
     console?.log 'test1'
     db.transaction (tx) ->
-      createTableItems tx,
-                       -> console?.log('suxx'),
-                       -> console?.log('faixx')
+      renderItems tx
+#       createTableItems tx,
+#                        -> console?.log('suxx'),
+#                        -> console?.log('faixx')
 
   $('#test2').on 'click touch', ->
     console?.log 'test2'
-    db.transaction (tx) ->
-      selectItems tx,
-                  (tx, res) -> xxx res
-                  (tx, res) -> console?.log 'faixx'
+    console?.log wrapHtmlList [1..5], 'li'
+#     db.transaction (tx) ->
+#       selectItems tx,
+#                   (tx, res) -> xxx res
+#                   (tx, res) -> console?.log 'faixx'
 
   $('#test3').on 'click touch',
                  ->
