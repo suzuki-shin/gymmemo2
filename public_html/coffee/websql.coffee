@@ -59,7 +59,7 @@ selectItems = (tx, success_func = _success_func, failure_func = _failure_func) -
 
 selectTrainingsByDate = (tx, success_func = _success_func, failure_func = _failure_func) ->
   console?.log 'selectTrainingsByDate'
-  SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id, it.name, tr.value, it.attr, tr.created_at FROM trainings tr LEFT JOIN items it ON tr.item_id = it.id WHERE tr.created_at = ? ORDER BY tr.id '# + order[config['todays_training_order']]
+  SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings tr LEFT JOIN items it ON tr.item_id = it.id WHERE tr.created_at = ? ORDER BY tr.id '# + order[config['todays_training_order']]
   tx.executeSql SELECT_TRAININGS_BY_DATE, [getYYYYMMDD()],
                 success_func,
                 failure_func
