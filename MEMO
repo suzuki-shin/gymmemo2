@@ -1,0 +1,22 @@
+** TODO
+- [ ] localstrageに設定(userとかsort順とか)保存
+- [ ] 過去の記録を復活させる
+- [ ] 記録やitemのデータを修正できるようにする
+- [ ] サーバ側に保存する
+- [ ] 
+
+** テーブル
+- 種目(items)
+id INT,
+status INT, -- 有効／無効
+name TEXT, -- 種目名
+attr TEXT, -- 単位名とか
+is_saved INT DEFAULT 0 -- サーバに保存済みか？
+
+- トレーニング記録(trainings)
+id INT,
+status INT,
+item_id INT, -- itemsテーブルpk
+value INT,
+created_at TEXT, -- トレーニング日時
+is_saved INT DEFAULT 0 -- サーバに保存済みか？
