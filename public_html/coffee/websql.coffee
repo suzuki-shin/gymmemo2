@@ -109,6 +109,21 @@ renderTodaysTrainings = (tx) ->
   console?.log 'renderTodaysTrainings'
   selectTrainingsByDate tx, (tx, res) -> $('#todaystraininglist').empty().append wrapHtmlList(_res2NameValues(res), 'li').join('')
 
+renderPastTrainingsDate =->
+    db.transaction _renderPastTrainingsDate, _failure_func
+
+_renderPastTrainingsDate = (tx) ->
+    console?.log('_renderPastTrainingsDate')
+    config = getConfig()
+    console?.log config
+    SELECT_TRAININGS_DATE = 'SELECT created_at FROM trainings t LEFT JOIN items i ON t.item_id = i.id GROUP BY t.created_at ORDER BY t.created_at ' + order[config['past_trainings_order']] + ' LIMIT 10'
+    tx.executeSql SELECT_TRAININGS_DATE, [],
+                  (tx, res) ->
+                      $('#trainingsubtitle').text ''
+                      $('#pasttraininglist').empty()
+                                          .append wrapHtmlList(_res2Date(res), 'li').join('')
+                  _failure_func
+
 
 _res2NameValues = (res) ->
     len = res.rows.length
@@ -121,6 +136,10 @@ _res2ItemAll= (res) ->
 _res2TrainingAll= (res) ->
     len = res.rows.length
     (res.rows.item(i).id + ' ' + res.rows.item(i).item_id + ' ' + res.rows.item(i).value + ' ' + res.rows.item(i).created_at + ' ' + res.rows.item(i).is_saved for i in [0...len])
+
+_res2Date = (res) ->
+    len = res.rows.length
+    ('<span>' + res.rows.item(i).created_at + '</span>' for i in [0...len])
 
 
 
@@ -281,7 +300,8 @@ $ ->
 #                   (tx, res) -> console?.log 'faixx'
 
   $('#test3').on 'click touch',
-                 -> setConfig({db_version:10})
+    renderPastTrainingsDate
+#                  -> setConfig({db_version:10})
 #                    console?.log _obj2keysAndVals {id:1, name:'hoge', age:30}
 #                    console?.log obj2insertSet {id:1, name:'hoge', age:30}
 #                    db.transaction (tx) ->

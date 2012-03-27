@@ -1,10 +1,10 @@
+
+/*
+# config
+*/
+
 (function() {
-
-  /*
-  # config
-  */
-
-  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderTodaysTrainings, selectItems, selectTrainingsByDate, setConfig, setUp, wrapHtmlList, xxx, _failure_func, _obj2keysAndVals, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
+  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderPastTrainingsDate, renderTodaysTrainings, selectItems, selectTrainingsByDate, setConfig, setUp, wrapHtmlList, xxx, _failure_func, _obj2keysAndVals, _renderPastTrainingsDate, _res2Date, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -174,6 +174,24 @@
     });
   };
 
+  renderPastTrainingsDate = function() {
+    return db.transaction(_renderPastTrainingsDate, _failure_func);
+  };
+
+  _renderPastTrainingsDate = function(tx) {
+    var SELECT_TRAININGS_DATE, config;
+    if (typeof console !== "undefined" && console !== null) {
+      console.log('_renderPastTrainingsDate');
+    }
+    config = getConfig();
+    if (typeof console !== "undefined" && console !== null) console.log(config);
+    SELECT_TRAININGS_DATE = 'SELECT created_at FROM trainings t LEFT JOIN items i ON t.item_id = i.id GROUP BY t.created_at ORDER BY t.created_at ' + order[config['past_trainings_order']] + ' LIMIT 10';
+    return tx.executeSql(SELECT_TRAININGS_DATE, [], function(tx, res) {
+      $('#trainingsubtitle').text('');
+      return $('#pasttraininglist').empty().append(wrapHtmlList(_res2Date(res), 'li').join(''));
+    }, _failure_func);
+  };
+
   _res2NameValues = function(res) {
     var i, len, _results;
     len = res.rows.length;
@@ -200,6 +218,16 @@
     _results = [];
     for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
       _results.push(res.rows.item(i).id + ' ' + res.rows.item(i).item_id + ' ' + res.rows.item(i).value + ' ' + res.rows.item(i).created_at + ' ' + res.rows.item(i).is_saved);
+    }
+    return _results;
+  };
+
+  _res2Date = function(res) {
+    var i, len, _results;
+    len = res.rows.length;
+    _results = [];
+    for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
+      _results.push('<span>' + res.rows.item(i).created_at + '</span>');
     }
     return _results;
   };
@@ -387,11 +415,7 @@
         });
       });
     });
-    return $('#test3').on('click touch', function() {
-      return setConfig({
-        db_version: 10
-      });
-    });
+    return $('#test3').on('click touch', renderPastTrainingsDate);
   });
 
 }).call(this);
