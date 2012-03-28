@@ -124,10 +124,10 @@ renderTrainingByDate = (ev) ->
     db.transaction _renderTrainingByDate, _failure_func
 
 
-renderPastTrainingsDate =->
-    db.transaction _renderPastTrainingsDate, _failure_func
+renderPastTrainingsDate = (tx) ->
+#     db.transaction _renderPastTrainingsDate, _failure_func
 
-_renderPastTrainingsDate = (tx) ->
+# _renderPastTrainingsDate = (tx) ->
     console?.log('_renderPastTrainingsDate')
     config = getConfig()
     console?.log config
@@ -191,7 +191,9 @@ setUp =->
     createTableTrainings tx
     renderItems tx
     renderTodaysTrainings tx
+    renderPastTrainingsDate tx
   createConfig()
+
 
 getConfig =->
   console?.log 'getConfig'
@@ -265,7 +267,8 @@ $ ->
   $('#itemadd button').on 'click touch', addItem
   $(document).on 'blur', '#itemlist li input', addTraining
 
-  $('#pasttrainingstitle').on 'click touch' renderPastTrainingsDate
+  $('#pasttrainingstitle').on 'click touch', ->
+    db.transaction (tx) -> renderPastTrainingsDate tx
 
   $(document).on 'touchstart', '#pasttraininglist li span', renderTrainingByDate
   $(document).on 'click', '#pasttraininglist li span', renderTrainingByDate

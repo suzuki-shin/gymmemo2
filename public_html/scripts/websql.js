@@ -4,7 +4,7 @@
   # config
   */
 
-  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, selectItems, selectTrainingsByDate, setConfig, setUp, wrapHtmlList, xxx, _failure_func, _obj2keysAndVals, _renderPastTrainingsDate, _res2Date, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
+  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, selectItems, selectTrainingsByDate, setConfig, setUp, wrapHtmlList, xxx, _failure_func, _obj2keysAndVals, _res2Date, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -193,11 +193,7 @@
     return db.transaction(_renderTrainingByDate, _failure_func);
   };
 
-  renderPastTrainingsDate = function() {
-    return db.transaction(_renderPastTrainingsDate, _failure_func);
-  };
-
-  _renderPastTrainingsDate = function(tx) {
+  renderPastTrainingsDate = function(tx) {
     var SELECT_TRAININGS_DATE, config;
     if (typeof console !== "undefined" && console !== null) {
       console.log('_renderPastTrainingsDate');
@@ -298,7 +294,8 @@
       createTableItems(tx);
       createTableTrainings(tx);
       renderItems(tx);
-      return renderTodaysTrainings(tx);
+      renderTodaysTrainings(tx);
+      return renderPastTrainingsDate(tx);
     });
     return createConfig();
   };
@@ -402,7 +399,11 @@
     });
     $('#itemadd button').on('click touch', addItem);
     $(document).on('blur', '#itemlist li input', addTraining);
-    $('#pasttrainingstitle').click(renderPastTrainingsDate);
+    $('#pasttrainingstitle').on('click touch', function() {
+      return db.transaction(function(tx) {
+        return renderPastTrainingsDate(tx);
+      });
+    });
     $(document).on('touchstart', '#pasttraininglist li span', renderTrainingByDate);
     $(document).on('click', '#pasttraininglist li span', renderTrainingByDate);
     $('#debug').on('click touch', function() {
