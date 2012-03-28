@@ -109,6 +109,21 @@ renderTodaysTrainings = (tx) ->
   console?.log 'renderTodaysTrainings'
   selectTrainingsByDate tx, (tx, res) -> $('#todaystraininglist').empty().append wrapHtmlList(_res2NameValues(res), 'li').join('')
 
+renderTrainingByDate = (ev) ->
+    console?.log 'renderTrainingByDate'
+    date = ev.target.textContent
+    _renderTrainingByDate = (tx) ->
+        console.log('_renderTrainingByDate')
+        config = getConfig()
+        SELECT_TRAININGS_BY_DATE = 'SELECT * FROM trainings t LEFT JOIN items i ON t.item_id = i.id WHERE t.created_at = ? ORDER BY t.id '# + order[config['todays_training_order']]
+        tx.executeSql SELECT_TRAININGS_BY_DATE, [date],
+                      (tx, res) ->
+                          $('#trainingsubtitle').text date
+                          $('#pasttraininglist').empty().append wrapHtmlList(_res2NameValues(res), 'li').join('')
+                      _failure_func
+    db.transaction _renderTrainingByDate, _failure_func
+
+
 renderPastTrainingsDate =->
     db.transaction _renderPastTrainingsDate, _failure_func
 
@@ -158,17 +173,6 @@ addTraining = (ev) ->
                      renderTodaysTrainings tx
                      $(ev.target).attr('value', '')
   false
-
-# _addTraining = (item_id, value, created_at) ->
-#     console?.log '_addTraining'
-#     db.transaction (tx) ->
-#          tx.executeSql select_count_trainings, [],
-#                        (tx, res) ->
-# #                            console.log res
-#                            tx.executeSql insert_training,
-#                                          [res.rows.item(0).cnt + 1, 1, item_id, value, created_at]
-#                                          (tx, res) -> ''#console.log res
-#                                          reportError
 
 getYYYYMMDD =->
   dt = new Date()
@@ -260,8 +264,11 @@ $ ->
   $('#itemstitle').on 'click touch', -> $('#itemadd').toggle()
   $('#itemadd button').on 'click touch', addItem
   $(document).on 'blur', '#itemlist li input', addTraining
-#   $(document).on 'change', '#itemlist li input', addTraining
 
+  $('#pasttrainingstitle').on 'click touch' renderPastTrainingsDate
+
+  $(document).on 'touchstart', '#pasttraininglist li span', renderTrainingByDate
+  $(document).on 'click', '#pasttraininglist li span', renderTrainingByDate
 
 
   $('#debug').on 'click touch',
@@ -288,7 +295,7 @@ $ ->
 #                        -> console?.log('faixx')
 
   $('#test2').on 'click touch', ->
-    console?.log 'test2'
+    console?.log 'test2!'
     db.transaction (tx) ->
       selectTrainingsByDate tx,
                             (tx, res) -> xxx(res, (x) -> x.attr + ':' + x.created_at + ':' + x.item_id + ':' + x.name)
@@ -306,4 +313,3 @@ $ ->
 #                    console?.log obj2insertSet {id:1, name:'hoge', age:30}
 #                    db.transaction (tx) ->
 #                      insertItem tx, {id:3, name:'abxkdjsk', user:'suzuki@', attr:'', ordernum:5}
-

@@ -1,10 +1,10 @@
-
-/*
-# config
-*/
-
 (function() {
-  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderPastTrainingsDate, renderTodaysTrainings, selectItems, selectTrainingsByDate, setConfig, setUp, wrapHtmlList, xxx, _failure_func, _obj2keysAndVals, _renderPastTrainingsDate, _res2Date, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
+
+  /*
+  # config
+  */
+
+  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, selectItems, selectTrainingsByDate, setConfig, setUp, wrapHtmlList, xxx, _failure_func, _obj2keysAndVals, _renderPastTrainingsDate, _res2Date, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -172,6 +172,25 @@
     return selectTrainingsByDate(tx, function(tx, res) {
       return $('#todaystraininglist').empty().append(wrapHtmlList(_res2NameValues(res), 'li').join(''));
     });
+  };
+
+  renderTrainingByDate = function(ev) {
+    var date, _renderTrainingByDate;
+    if (typeof console !== "undefined" && console !== null) {
+      console.log('renderTrainingByDate');
+    }
+    date = ev.target.textContent;
+    _renderTrainingByDate = function(tx) {
+      var SELECT_TRAININGS_BY_DATE, config;
+      console.log('_renderTrainingByDate');
+      config = getConfig();
+      SELECT_TRAININGS_BY_DATE = 'SELECT * FROM trainings t LEFT JOIN items i ON t.item_id = i.id WHERE t.created_at = ? ORDER BY t.id ';
+      return tx.executeSql(SELECT_TRAININGS_BY_DATE, [date], function(tx, res) {
+        $('#trainingsubtitle').text(date);
+        return $('#pasttraininglist').empty().append(wrapHtmlList(_res2NameValues(res), 'li').join(''));
+      }, _failure_func);
+    };
+    return db.transaction(_renderTrainingByDate, _failure_func);
   };
 
   renderPastTrainingsDate = function() {
@@ -383,6 +402,9 @@
     });
     $('#itemadd button').on('click touch', addItem);
     $(document).on('blur', '#itemlist li input', addTraining);
+    $('#pasttrainingstitle').click(renderPastTrainingsDate);
+    $(document).on('touchstart', '#pasttraininglist li span', renderTrainingByDate);
+    $(document).on('click', '#pasttraininglist li span', renderTrainingByDate);
     $('#debug').on('click touch', function() {
       $('#showdb').toggle();
       return $('#clear').toggle();
@@ -406,7 +428,9 @@
       });
     });
     $('#test2').on('click touch', function() {
-      if (typeof console !== "undefined" && console !== null) console.log('test2');
+      if (typeof console !== "undefined" && console !== null) {
+        console.log('test2!');
+      }
       return db.transaction(function(tx) {
         return selectTrainingsByDate(tx, function(tx, res) {
           return xxx(res, function(x) {
