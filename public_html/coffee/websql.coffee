@@ -284,6 +284,9 @@ $ ->
                  ->
                    $('#showdb').toggle()
                    $('#clear').toggle()
+                   $('#test1').toggle()
+                   $('#test2').toggle()
+                   $('#test3').toggle()
 
   $('#showdb').click ->
     debugSelectItems()

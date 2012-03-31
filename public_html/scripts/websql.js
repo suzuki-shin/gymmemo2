@@ -391,7 +391,10 @@
     $(document).on('click', '#pasttraininglist li span', renderTrainingByDate);
     $('#debug').on('click touch', function() {
       $('#showdb').toggle();
-      return $('#clear').toggle();
+      $('#clear').toggle();
+      $('#test1').toggle();
+      $('#test2').toggle();
+      return $('#test3').toggle();
     });
     $('#showdb').click(function() {
       debugSelectItems();
