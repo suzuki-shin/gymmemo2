@@ -1,15 +1,21 @@
 ###
 # config
 ###
+_DEBUG = true
+# DEBUG = false
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
 order = [' ASC ', ' DESC ']
 
+_l = (mes, log_func =(mes)-> console?.log mes) ->
+  if _DEBUG
+    log_func mes
+
 _success_func = (tx) ->
-  console?.log 'OK'
-  console?.log tx
+  _l 'OK'
+  _l tx
 _failure_func = (tx) ->
-  console?.log 'NG'
-  console?.log tx
+  _l 'NG'
+  _l tx
 
 # obj = {'id' : 1, 'name':'hoge', 'user':'xxx@mail.com', 'attr':'minutes', 'ordernum':1}
 # のようなデータを受け取り
@@ -40,25 +46,25 @@ obj2upateSet = (obj) ->
   [' set ' + (k + ' = ?' for k in keys).join(','), vals]
 
 createTableItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
-  console?.log 'createTableItems'
+  _l 'createTableItems'
   tx.executeSql 'CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, attr TEXT, is_saved INT DEFAULT 0 NOT NULL, ordernum INT DEFAULT 0, is_active INTEGER DEFAULT 1)', [],
                 success_func,
                 failure_func
 
 createTableTrainings = (tx, success_func = _success_func, failure_func = _failure_func) ->
-  console?.log 'createTableTrainings'
+  _l 'createTableTrainings'
   tx.executeSql 'CREATE TABLE IF NOT EXISTS trainings (id INTEGER PRIMARY KEY AUTOINCREMENT, item_id INTEGER NOT NULL, value INTEGER NOT NULL, created_at TEXT, is_saved INT DEFAULT 0 NOT NULL)', [],
                 success_func,
                 failure_func
 
 selectItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
-  console?.log 'selectItems'
+  _l 'selectItems'
   tx.executeSql 'select * from items order by ordernum asc', [],
                 success_func,
                 failure_func
 
 selectTrainingsByDate = (tx, success_func = _success_func, failure_func = _failure_func) ->
-  console?.log 'selectTrainingsByDate'
+  _l 'selectTrainingsByDate'
   SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings AS tr LEFT JOIN items AS it ON tr.item_id = it.id WHERE tr.created_at = ? ORDER BY tr.id '# + order[config['todays_training_order']]
   tx.executeSql SELECT_TRAININGS_BY_DATE, [getYYYYMMDD()],
                 success_func,
@@ -71,11 +77,11 @@ insertTraining = (tx, obj, success_func = _success_func, failure_func = _failure
   insertData tx, 'trainings', obj, success_func, failure_func
 
 insertData = (tx, table, obj, success_func = _success_func, failure_func = _failure_func) ->
-  console?.log 'insertData'
+  _l 'insertData'
   [set, params] = obj2insertSet obj
-  console?.log table
-  console?.log set
-  console?.log params
+  _l table
+  _l set
+  _l params
   tx.executeSql 'insert into ' + table + ' ' + set, params,
                 success_func,
                 failure_func
@@ -96,7 +102,7 @@ addItem = (ev) ->
 
 
 renderItems = (tx) ->
-  console?.log 'renderItems'
+  _l 'renderItems'
   _renderItems = (res) ->
     _res2inputElems = (res) ->
       len = res.rows.length
@@ -106,11 +112,11 @@ renderItems = (tx) ->
 
 
 renderTodaysTrainings = (tx) ->
-  console?.log 'renderTodaysTrainings'
+  _l 'renderTodaysTrainings'
   selectTrainingsByDate tx, (tx, res) -> $('#todaystraininglist').empty().append wrapHtmlList(_res2NameValues(res), 'li').join('')
 
 renderTrainingByDate = (ev) ->
-    console?.log 'renderTrainingByDate'
+    _l 'renderTrainingByDate'
     date = ev.target.textContent
     _renderTrainingByDate = (tx) ->
         console.log('_renderTrainingByDate')
@@ -128,9 +134,9 @@ renderPastTrainingsDate = (tx) ->
 #     db.transaction _renderPastTrainingsDate, _failure_func
 
 # _renderPastTrainingsDate = (tx) ->
-    console?.log('_renderPastTrainingsDate')
+    _l('_renderPastTrainingsDate')
     config = getConfig()
-    console?.log config
+    _l config
     SELECT_TRAININGS_DATE = 'SELECT created_at FROM trainings t LEFT JOIN items i ON t.item_id = i.id GROUP BY t.created_at ORDER BY t.created_at ' + order[config['past_trainings_order']] + ' LIMIT 10'
     tx.executeSql SELECT_TRAININGS_DATE, [],
                   (tx, res) ->
@@ -163,7 +169,7 @@ wrapHtmlList = (list, tag) ->
 
 
 addTraining = (ev) ->
-  console?.log 'addTraining'
+  _l 'addTraining'
   return if not ev.target.value
 
   item_id = ev.target.id.slice(4,8)
@@ -185,7 +191,7 @@ getYYYYMMDD =->
 
 
 setUp =->
-  console?.log 'setUp'
+  _l 'setUp'
   db.transaction (tx) ->
     createTableItems tx
     createTableTrainings tx
@@ -196,7 +202,7 @@ setUp =->
 
 
 getConfig =->
-  console?.log 'getConfig'
+  _l 'getConfig'
   JSON.parse(localStorage['config'])
 
 setConfig = (change_config) ->
@@ -204,11 +210,11 @@ setConfig = (change_config) ->
   _setConfig($.extend(config, change_config))
 
 _setConfig = (json) ->
-  console?.log '_setConfig'
+  _l '_setConfig'
   localStorage['config'] = JSON.stringify(json)
 
 createConfig =->
-  console.log 'createConfig'
+  _l 'createConfig'
   return if localStorage['config']?
   _setConfig(
     db_version: 0
@@ -221,20 +227,20 @@ createConfig =->
 ## for test
 ##
 xxx = (res, func = (x) -> x) ->
-  console?.log 'xxx'
+  _l 'xxx'
   len = res.rows.length
   for i in [0...len]
-    console?.log func(res.rows.item(i))
+    _l func(res.rows.item(i))
 
 debugSelectItems =->
-  console?.log 'debugSelectItems'
+  _l 'debugSelectItems'
   db.transaction (tx) ->
     tx.executeSql 'select * from items', [],
                   (tx, res) ->
                     $('#showdb').append wrapHtmlList(_res2ItemAll(res), 'li').join('')
 
 debugSelectTrainings =->
-  console?.log 'debugSelectTrainings'
+  _l 'debugSelectTrainings'
   db.transaction (tx) ->
     tx.executeSql 'select * from trainings', [],
                   (tx, res) ->
@@ -287,32 +293,35 @@ $ ->
     dropTableTrainings()
 
   $('#test1').on 'click touch', ->
-    console?.log 'test1'
+    _l 'test1'
     db.transaction (tx) ->
       tx.executeSql 'select * from items left join trainings on items.id = trainings.item_id', [],
                     (tx, res) -> xxx(res, (x) -> x.attr + ':' + x.created_at + ':' + x.item_id + ':' + x.name)
 #       renderTodaysTrainings tx
 #       renderItems tx
 #       createTableItems tx,
-#                        -> console?.log('suxx'),
-#                        -> console?.log('faixx')
+#                        -> _l('suxx'),
+#                        -> _l('faixx')
 
   $('#test2').on 'click touch', ->
-    console?.log 'test2!'
+    _l 'test2!'
     db.transaction (tx) ->
       selectTrainingsByDate tx,
                             (tx, res) -> xxx(res, (x) -> x.attr + ':' + x.created_at + ':' + x.item_id + ':' + x.name)
-#     console?.log getYYYYMMDD()
-#     console?.log wrapHtmlList [1..5], 'li'
+#     _l getYYYYMMDD()
+#     _l wrapHtmlList [1..5], 'li'
 #     db.transaction (tx) ->
 #       selectItems tx,
 #                   (tx, res) -> xxx res
-#                   (tx, res) -> console?.log 'faixx'
+#                   (tx, res) -> _l 'faixx'
 
-  $('#test3').on 'click touch',
-    renderPastTrainingsDate
+  $('#test3').on 'click touch', ->
+    alert 'hik'
+    _l 'test333', alert
+    _l 'test334'
+#     renderPastTrainingsDate
 #                  -> setConfig({db_version:10})
-#                    console?.log _obj2keysAndVals {id:1, name:'hoge', age:30}
-#                    console?.log obj2insertSet {id:1, name:'hoge', age:30}
+#                    _l _obj2keysAndVals {id:1, name:'hoge', age:30}
+#                    _l obj2insertSet {id:1, name:'hoge', age:30}
 #                    db.transaction (tx) ->
 #                      insertItem tx, {id:3, name:'abxkdjsk', user:'suzuki@', attr:'', ordernum:5}

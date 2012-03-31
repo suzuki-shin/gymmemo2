@@ -4,20 +4,31 @@
   # config
   */
 
-  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, selectItems, selectTrainingsByDate, setConfig, setUp, wrapHtmlList, xxx, _failure_func, _obj2keysAndVals, _res2Date, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
+  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, selectItems, selectTrainingsByDate, setConfig, setUp, wrapHtmlList, xxx, _DEBUG, _failure_func, _l, _obj2keysAndVals, _res2Date, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
+
+  _DEBUG = true;
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
   order = [' ASC ', ' DESC '];
 
+  _l = function(mes, log_func) {
+    if (log_func == null) {
+      log_func = function(mes) {
+        return typeof console !== "undefined" && console !== null ? console.log(mes) : void 0;
+      };
+    }
+    if (_DEBUG) return log_func(mes);
+  };
+
   _success_func = function(tx) {
-    if (typeof console !== "undefined" && console !== null) console.log('OK');
-    return typeof console !== "undefined" && console !== null ? console.log(tx) : void 0;
+    _l('OK');
+    return _l(tx);
   };
 
   _failure_func = function(tx) {
-    if (typeof console !== "undefined" && console !== null) console.log('NG');
-    return typeof console !== "undefined" && console !== null ? console.log(tx) : void 0;
+    _l('NG');
+    return _l(tx);
   };
 
   _obj2keysAndVals = function(obj) {
@@ -67,27 +78,21 @@
   createTableItems = function(tx, success_func, failure_func) {
     if (success_func == null) success_func = _success_func;
     if (failure_func == null) failure_func = _failure_func;
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('createTableItems');
-    }
+    _l('createTableItems');
     return tx.executeSql('CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, attr TEXT, is_saved INT DEFAULT 0 NOT NULL, ordernum INT DEFAULT 0, is_active INTEGER DEFAULT 1)', [], success_func, failure_func);
   };
 
   createTableTrainings = function(tx, success_func, failure_func) {
     if (success_func == null) success_func = _success_func;
     if (failure_func == null) failure_func = _failure_func;
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('createTableTrainings');
-    }
+    _l('createTableTrainings');
     return tx.executeSql('CREATE TABLE IF NOT EXISTS trainings (id INTEGER PRIMARY KEY AUTOINCREMENT, item_id INTEGER NOT NULL, value INTEGER NOT NULL, created_at TEXT, is_saved INT DEFAULT 0 NOT NULL)', [], success_func, failure_func);
   };
 
   selectItems = function(tx, success_func, failure_func) {
     if (success_func == null) success_func = _success_func;
     if (failure_func == null) failure_func = _failure_func;
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('selectItems');
-    }
+    _l('selectItems');
     return tx.executeSql('select * from items order by ordernum asc', [], success_func, failure_func);
   };
 
@@ -95,9 +100,7 @@
     var SELECT_TRAININGS_BY_DATE;
     if (success_func == null) success_func = _success_func;
     if (failure_func == null) failure_func = _failure_func;
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('selectTrainingsByDate');
-    }
+    _l('selectTrainingsByDate');
     SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings AS tr LEFT JOIN items AS it ON tr.item_id = it.id WHERE tr.created_at = ? ORDER BY tr.id ';
     return tx.executeSql(SELECT_TRAININGS_BY_DATE, [getYYYYMMDD()], success_func, failure_func);
   };
@@ -118,13 +121,11 @@
     var params, set, _ref;
     if (success_func == null) success_func = _success_func;
     if (failure_func == null) failure_func = _failure_func;
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('insertData');
-    }
+    _l('insertData');
     _ref = obj2insertSet(obj), set = _ref[0], params = _ref[1];
-    if (typeof console !== "undefined" && console !== null) console.log(table);
-    if (typeof console !== "undefined" && console !== null) console.log(set);
-    if (typeof console !== "undefined" && console !== null) console.log(params);
+    _l(table);
+    _l(set);
+    _l(params);
     return tx.executeSql('insert into ' + table + ' ' + set, params, success_func, failure_func);
   };
 
@@ -144,9 +145,7 @@
 
   renderItems = function(tx) {
     var _renderItems;
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('renderItems');
-    }
+    _l('renderItems');
     _renderItems = function(res) {
       var _res2inputElems;
       _res2inputElems = function(res) {
@@ -166,9 +165,7 @@
   };
 
   renderTodaysTrainings = function(tx) {
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('renderTodaysTrainings');
-    }
+    _l('renderTodaysTrainings');
     return selectTrainingsByDate(tx, function(tx, res) {
       return $('#todaystraininglist').empty().append(wrapHtmlList(_res2NameValues(res), 'li').join(''));
     });
@@ -176,9 +173,7 @@
 
   renderTrainingByDate = function(ev) {
     var date, _renderTrainingByDate;
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('renderTrainingByDate');
-    }
+    _l('renderTrainingByDate');
     date = ev.target.textContent;
     _renderTrainingByDate = function(tx) {
       var SELECT_TRAININGS_BY_DATE, config;
@@ -195,11 +190,9 @@
 
   renderPastTrainingsDate = function(tx) {
     var SELECT_TRAININGS_DATE, config;
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('_renderPastTrainingsDate');
-    }
+    _l('_renderPastTrainingsDate');
     config = getConfig();
-    if (typeof console !== "undefined" && console !== null) console.log(config);
+    _l(config);
     SELECT_TRAININGS_DATE = 'SELECT created_at FROM trainings t LEFT JOIN items i ON t.item_id = i.id GROUP BY t.created_at ORDER BY t.created_at ' + order[config['past_trainings_order']] + ' LIMIT 10';
     return tx.executeSql(SELECT_TRAININGS_DATE, [], function(tx, res) {
       $('#trainingsubtitle').text('');
@@ -259,9 +252,7 @@
 
   addTraining = function(ev) {
     var item_id;
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('addTraining');
-    }
+    _l('addTraining');
     if (!ev.target.value) return;
     item_id = ev.target.id.slice(4, 8);
     db.transaction(function(tx) {
@@ -289,7 +280,7 @@
   };
 
   setUp = function() {
-    if (typeof console !== "undefined" && console !== null) console.log('setUp');
+    _l('setUp');
     db.transaction(function(tx) {
       createTableItems(tx);
       createTableTrainings(tx);
@@ -301,9 +292,7 @@
   };
 
   getConfig = function() {
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('getConfig');
-    }
+    _l('getConfig');
     return JSON.parse(localStorage['config']);
   };
 
@@ -314,14 +303,12 @@
   };
 
   _setConfig = function(json) {
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('_setConfig');
-    }
+    _l('_setConfig');
     return localStorage['config'] = JSON.stringify(json);
   };
 
   createConfig = function() {
-    console.log('createConfig');
+    _l('createConfig');
     if (localStorage['config'] != null) return;
     return _setConfig({
       db_version: 0,
@@ -338,19 +325,17 @@
         return x;
       };
     }
-    if (typeof console !== "undefined" && console !== null) console.log('xxx');
+    _l('xxx');
     len = res.rows.length;
     _results = [];
     for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
-      _results.push(typeof console !== "undefined" && console !== null ? console.log(func(res.rows.item(i))) : void 0);
+      _results.push(_l(func(res.rows.item(i))));
     }
     return _results;
   };
 
   debugSelectItems = function() {
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('debugSelectItems');
-    }
+    _l('debugSelectItems');
     return db.transaction(function(tx) {
       return tx.executeSql('select * from items', [], function(tx, res) {
         return $('#showdb').append(wrapHtmlList(_res2ItemAll(res), 'li').join(''));
@@ -359,9 +344,7 @@
   };
 
   debugSelectTrainings = function() {
-    if (typeof console !== "undefined" && console !== null) {
-      console.log('debugSelectTrainings');
-    }
+    _l('debugSelectTrainings');
     return db.transaction(function(tx) {
       return tx.executeSql('select * from trainings', [], function(tx, res) {
         return $('#showdb').append(wrapHtmlList(_res2TrainingAll(res), 'li').join(''));
@@ -419,7 +402,7 @@
       return dropTableTrainings();
     });
     $('#test1').on('click touch', function() {
-      if (typeof console !== "undefined" && console !== null) console.log('test1');
+      _l('test1');
       return db.transaction(function(tx) {
         return tx.executeSql('select * from items left join trainings on items.id = trainings.item_id', [], function(tx, res) {
           return xxx(res, function(x) {
@@ -429,9 +412,7 @@
       });
     });
     $('#test2').on('click touch', function() {
-      if (typeof console !== "undefined" && console !== null) {
-        console.log('test2!');
-      }
+      _l('test2!');
       return db.transaction(function(tx) {
         return selectTrainingsByDate(tx, function(tx, res) {
           return xxx(res, function(x) {
@@ -440,7 +421,11 @@
         });
       });
     });
-    return $('#test3').on('click touch', renderPastTrainingsDate);
+    return $('#test3').on('click touch', function() {
+      alert('hik');
+      _l('test333', alert);
+      return _l('test334');
+    });
   });
 
 }).call(this);
