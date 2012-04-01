@@ -4,7 +4,7 @@
   # config
   */
 
-  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2upateSet, order, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, selectItems, selectTrainingsByDate, setConfig, setUp, wrapHtmlList, xxx, _DEBUG, _failure_func, _l, _obj2keysAndVals, _res2Date, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
+  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2updateSet, order, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, selectItems, selectTrainingsByDate, setConfig, setUp, wrapHtmlList, xxx, _DEBUG, _failure_func, _l, _obj2keysAndVals, _renderRes, _res2Date, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
 
   _DEBUG = true;
 
@@ -59,7 +59,7 @@
     ];
   };
 
-  obj2upateSet = function(obj) {
+  obj2updateSet = function(obj) {
     var k, keys, vals, _ref;
     _ref = _obj2keysAndVals(obj), keys = _ref[0], vals = _ref[1];
     return [
@@ -135,7 +135,7 @@
         name: $('#itemname').attr('value') || null,
         attr: $('#itemattr').attr('value')
       }, function(tx) {
-        renderItems(tx);
+        renderItemForms(tx);
         $('#itemname').attr('value', '');
         return $('#itemattr').attr('value', '');
       });
@@ -143,24 +143,48 @@
     return false;
   };
 
-  renderItems = function(tx) {
-    var _renderItems;
-    _l('renderItems');
-    _renderItems = function(res) {
-      var _res2inputElems;
-      _res2inputElems = function(res) {
-        var i, len, _results;
-        len = res.rows.length;
-        _results = [];
-        for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
-          _results.push(res.rows.item(i).name + '<input type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr);
-        }
-        return _results;
-      };
-      return $('#itemlist').empty().append(wrapHtmlList(_res2inputElems(res), 'li').join(''));
+  _renderRes = function(res, jqobj, func) {
+    return jqobj.empty().append(func(res));
+  };
+
+  renderItemForms = function(tx) {
+    var _res2inputElems, _resToForm;
+    _l('renderItemForms');
+    _res2inputElems = function(res) {
+      var i, len, _results;
+      len = res.rows.length;
+      _results = [];
+      for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
+        _results.push(res.rows.item(i).name + '<input type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr);
+      }
+      return _results;
+    };
+    _resToForm = function(res) {
+      return wrapHtmlList(_res2inputElems(res), 'li').join('');
     };
     return selectItems(tx, function(tx, res) {
-      return _renderItems(res);
+      return _renderRes(res, $('#itemlist'), _resToForm);
+    });
+  };
+
+  renderItems = function(tx) {
+    var _res2li, _res2string;
+    _l('renderItems');
+    _res2string = function(res) {
+      var i, len, _results;
+      _l('_res2string');
+      len = res.rows.length;
+      _results = [];
+      for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
+        _results.push('<span id="itemsetting' + res.rows.item(i).id + '">' + res.rows.item(i).name + ' [' + res.rows.item(i).attr + ']</span>');
+      }
+      return _results;
+    };
+    _res2li = function(res) {
+      return wrapHtmlList(_res2string(res), 'li').join('');
+    };
+    return selectItems(tx, function(tx, res) {
+      return _renderRes(res, $('#itemlistsetting'), _res2li);
     });
   };
 
@@ -284,9 +308,10 @@
     db.transaction(function(tx) {
       createTableItems(tx);
       createTableTrainings(tx);
-      renderItems(tx);
+      renderItemForms(tx);
       renderTodaysTrainings(tx);
-      return renderPastTrainingsDate(tx);
+      renderPastTrainingsDate(tx);
+      return renderItems(tx);
     });
     return createConfig();
   };

@@ -41,7 +41,7 @@ obj2insertSet = (obj) ->
 # のようなデータを受け取り
 # ['set id = ?, name = ?, user = ?, attr = ?, ordernum = ?', (1,'hoge','xxx@mail.com','minutes',1)]
 # のようなデータにして返す
-obj2upateSet = (obj) ->
+obj2updateSet = (obj) ->
   [keys, vals] = _obj2keysAndVals(obj)
   [' set ' + (k + ' = ?' for k in keys).join(','), vals]
 
@@ -91,24 +91,34 @@ addItem = (ev) ->
   db.transaction (tx) ->
     insertItem tx, {name: $('#itemname').attr('value') or null, attr: $('#itemattr').attr('value')},
                (tx) ->
-                 renderItems tx
+                 renderItemForms tx
                  $('#itemname').attr('value', '')
                  $('#itemattr').attr('value', '')
   false
 
-# addTraining = (ev) ->
-#   db.transaction (tx) ->
-#     insertTraining tx {item_id:
+# 渡されたselect結果のresをfuncで加工してjqobjに追記する関数
+# res: result object of tx.executeSql()
+# jqobj: jquery object to append
+# func: 1 args function for format res
+_renderRes = (res, jqobj, func) ->
+   jqobj.empty().append func(res)
 
+renderItemForms = (tx) ->
+  _l 'renderItemForms'
+  _res2inputElems = (res) ->
+    len = res.rows.length
+    (res.rows.item(i).name + '<input type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr for i in [0...len])
+  _resToForm =  (res) -> wrapHtmlList(_res2inputElems(res), 'li').join('')
+  selectItems tx, (tx, res) -> _renderRes res, $('#itemlist'), _resToForm
 
 renderItems = (tx) ->
   _l 'renderItems'
-  _renderItems = (res) ->
-    _res2inputElems = (res) ->
-      len = res.rows.length
-      (res.rows.item(i).name + '<input type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr for i in [0...len])
-    $('#itemlist').empty().append wrapHtmlList(_res2inputElems(res), 'li').join('')
-  selectItems tx, (tx, res) -> _renderItems res
+  _res2string = (res) ->
+    _l '_res2string'
+    len = res.rows.length
+    ('<span id="itemsetting' + res.rows.item(i).id + '">' + res.rows.item(i).name + ' [' + res.rows.item(i).attr + ']</span>' for i in [0...len])
+  _res2li = (res) -> wrapHtmlList(_res2string(res), 'li').join('')
+  selectItems tx, (tx, res) -> _renderRes res, $('#itemlistsetting'), _res2li
 
 
 renderTodaysTrainings = (tx) ->
@@ -163,7 +173,6 @@ _res2Date = (res) ->
     ('<span>' + res.rows.item(i).created_at + '</span>' for i in [0...len])
 
 
-
 wrapHtmlList = (list, tag) ->
     ('<' + tag + '>' + l + '</' + tag + '>' for l in list)
 
@@ -195,9 +204,10 @@ setUp =->
   db.transaction (tx) ->
     createTableItems tx
     createTableTrainings tx
-    renderItems tx
+    renderItemForms tx
     renderTodaysTrainings tx
     renderPastTrainingsDate tx
+    renderItems tx
   createConfig()
 
 
@@ -301,7 +311,7 @@ $ ->
       tx.executeSql 'select * from items left join trainings on items.id = trainings.item_id', [],
                     (tx, res) -> xxx(res, (x) -> x.attr + ':' + x.created_at + ':' + x.item_id + ':' + x.name)
 #       renderTodaysTrainings tx
-#       renderItems tx
+#       renderItemForms tx
 #       createTableItems tx,
 #                        -> _l('suxx'),
 #                        -> _l('faixx')
