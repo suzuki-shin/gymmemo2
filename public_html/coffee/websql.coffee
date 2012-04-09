@@ -114,6 +114,7 @@ addItem = (ev) ->
 
 editItem = (ev) ->
   _l 'editItem'
+  return if not confirm('本当に変更しても良いですか？')
 #   _l ev.target.id
   item_id = ev.target.id.slice(17)
 #   _l item_id
@@ -328,7 +329,7 @@ $ ->
 
   $(document).on 'touchstart', '#pasttraininglist li span', renderTrainingByDate
   $(document).on 'click', '#pasttraininglist li span', renderTrainingByDate
-  $(document).on 'touch click', '#settingtitle', -> $('#setting').toggle()
+  $(document).on 'touchstart click', '#settingtitle', -> $('#setting').toggle()
 
 
   $('#debug').on 'click touch',

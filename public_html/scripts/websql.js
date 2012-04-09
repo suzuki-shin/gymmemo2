@@ -166,6 +166,7 @@
   editItem = function(ev) {
     var item_id;
     _l('editItem');
+    if (!confirm('本当に変更しても良いですか？')) return;
     item_id = ev.target.id.slice(17);
     _l($('#itemsetting' + item_id).attr('value'));
     _l($('#itemattrsetting' + item_id).attr('value'));
@@ -450,7 +451,7 @@
     });
     $(document).on('touchstart', '#pasttraininglist li span', renderTrainingByDate);
     $(document).on('click', '#pasttraininglist li span', renderTrainingByDate);
-    $(document).on('touch click', '#settingtitle', function() {
+    $(document).on('touchstart click', '#settingtitle', function() {
       return $('#setting').toggle();
     });
     $('#debug').on('click touch', function() {
