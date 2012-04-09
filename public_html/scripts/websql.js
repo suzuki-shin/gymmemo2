@@ -450,7 +450,7 @@
     });
     $(document).on('touchstart', '#pasttraininglist li span', renderTrainingByDate);
     $(document).on('click', '#pasttraininglist li span', renderTrainingByDate);
-    $(document).on('click touch', '#settingtitle', function() {
+    $(document).on('touch click', '#settingtitle', function() {
       return $('#setting').toggle();
     });
     $('#debug').on('click touch', function() {

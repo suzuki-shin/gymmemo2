@@ -328,7 +328,7 @@ $ ->
 
   $(document).on 'touchstart', '#pasttraininglist li span', renderTrainingByDate
   $(document).on 'click', '#pasttraininglist li span', renderTrainingByDate
-  $(document).on 'click touch', '#settingtitle', -> $('#setting').toggle()
+  $(document).on 'touch click', '#settingtitle', -> $('#setting').toggle()
 
 
   $('#debug').on 'click touch',
