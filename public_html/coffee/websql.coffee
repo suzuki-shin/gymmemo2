@@ -121,7 +121,8 @@ editItem = (ev) ->
   _l $('#itemattrsetting' + item_id).attr('value')
 
   db.transaction (tx) ->
-    updateItem tx, {name: $('#itemsetting' + item_id).attr('value') or null, attr: $('#itemattrsetting' + item_id).attr('value')}, ['id = ?', item_id]
+    updateItem tx, {name: $('#itemsetting' + item_id).attr('value') or null, attr: $('#itemattrsetting' + item_id).attr('value')}, ['id = ?', item_id],
+               renderItemForms
 
 
 # 渡されたselect結果のresをfuncで加工してjqobjに追記する関数
@@ -153,10 +154,8 @@ renderItems = (tx) ->
 #       _l '#' + button_id
 #       $('#' + button_id).on('click', -> alert 'ddd7')
     item_forms
-
   _res2li = (res) -> wrapHtmlList(_res2string(res), 'li').join('')
-
-  selectItems tx, (tx, res) -> _renderRes res, $('#itemlistsetting'), _res2li
+  selectItems tx, (tx, res) -> _renderRes(res, $('#itemlistsetting'), _res2li)
 
 
 renderTodaysTrainings = (tx) ->
@@ -246,6 +245,7 @@ setUp =->
     renderTodaysTrainings tx
     renderPastTrainingsDate tx
     renderItems tx
+    $('#setting').hide()
   createConfig()
 
 
@@ -328,8 +328,7 @@ $ ->
 
   $(document).on 'touchstart', '#pasttraininglist li span', renderTrainingByDate
   $(document).on 'click', '#pasttraininglist li span', renderTrainingByDate
-#   $(document).on 'click', '#itemsettingbutton', editItem
-
+  $(document).on 'click touch', '#settingtitle', -> $('#setting').toggle()
 
 
   $('#debug').on 'click touch',

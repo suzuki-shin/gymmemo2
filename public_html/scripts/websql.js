@@ -173,7 +173,7 @@
       return updateItem(tx, {
         name: $('#itemsetting' + item_id).attr('value') || null,
         attr: $('#itemattrsetting' + item_id).attr('value')
-      }, ['id = ?', item_id]);
+      }, ['id = ?', item_id], renderItemForms);
     });
   };
 
@@ -345,7 +345,8 @@
       renderItemForms(tx);
       renderTodaysTrainings(tx);
       renderPastTrainingsDate(tx);
-      return renderItems(tx);
+      renderItems(tx);
+      return $('#setting').hide();
     });
     return createConfig();
   };
@@ -449,6 +450,9 @@
     });
     $(document).on('touchstart', '#pasttraininglist li span', renderTrainingByDate);
     $(document).on('click', '#pasttraininglist li span', renderTrainingByDate);
+    $(document).on('click touch', '#settingtitle', function() {
+      return $('#setting').toggle();
+    });
     $('#debug').on('click touch', function() {
       $('#showdb').toggle();
       $('#clear').toggle();
