@@ -4,7 +4,7 @@
   # config
   */
 
-  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2updateSet, order, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, selectItems, selectTrainingsByDate, setConfig, setUp, wrapHtmlList, xxx, _DEBUG, _failure_func, _l, _obj2keysAndVals, _renderRes, _res2Date, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
+  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2updateSet, order, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, selectItems, selectTrainingsByDate, setConfig, setUp, updateData, updateItem, wrapHtmlList, xxx, _DEBUG, _failure_func, _l, _obj2keysAndVals, _renderRes, _res2Date, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
 
   _DEBUG = true;
 
@@ -33,6 +33,7 @@
 
   _obj2keysAndVals = function(obj) {
     var k, keys, v, vals;
+    _l(obj);
     keys = [];
     vals = [];
     for (k in obj) {
@@ -111,6 +112,12 @@
     return insertData(tx, 'items', obj, success_func, failure_func);
   };
 
+  updateItem = function(tx, obj, where_state, success_func, failure_func) {
+    if (success_func == null) success_func = _success_func;
+    if (failure_func == null) failure_func = _failure_func;
+    return updateData(tx, 'items', obj, where_state, success_func, failure_func);
+  };
+
   insertTraining = function(tx, obj, success_func, failure_func) {
     if (success_func == null) success_func = _success_func;
     if (failure_func == null) failure_func = _failure_func;
@@ -129,6 +136,19 @@
     return tx.executeSql('insert into ' + table + ' ' + set, params, success_func, failure_func);
   };
 
+  updateData = function(tx, table, obj, where_state, success_func, failure_func) {
+    var params, set, _ref, _update_state;
+    if (success_func == null) success_func = _success_func;
+    if (failure_func == null) failure_func = _failure_func;
+    _l('updateData');
+    _ref = obj2updateSet(obj), set = _ref[0], params = _ref[1];
+    _update_state = 'update ' + table + ' ' + set + ' where ' + where_state[0];
+    _l(where_state);
+    _l(_update_state);
+    params.push(parseInt(where_state[1]));
+    return tx.executeSql(_update_state, params, success_func, failure_func);
+  };
+
   addItem = function(ev) {
     db.transaction(function(tx) {
       return insertItem(tx, {
@@ -141,6 +161,20 @@
       });
     });
     return false;
+  };
+
+  editItem = function(ev) {
+    var item_id;
+    _l('editItem');
+    item_id = ev.target.id.slice(17);
+    _l($('#itemsetting' + item_id).attr('value'));
+    _l($('#itemattrsetting' + item_id).attr('value'));
+    return db.transaction(function(tx) {
+      return updateItem(tx, {
+        name: $('#itemsetting' + item_id).attr('value') || null,
+        attr: $('#itemattrsetting' + item_id).attr('value')
+      }, ['id = ?', item_id]);
+    });
   };
 
   _renderRes = function(res, jqobj, func) {
@@ -171,14 +205,14 @@
     var _res2li, _res2string;
     _l('renderItems');
     _res2string = function(res) {
-      var i, len, _results;
-      _l('_res2string');
+      var i, id, item_forms, len;
       len = res.rows.length;
-      _results = [];
+      item_forms = [];
       for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
-        _results.push('<span id="itemsetting' + res.rows.item(i).id + '">' + res.rows.item(i).name + ' [' + res.rows.item(i).attr + ']</span>');
+        id = res.rows.item(i).id;
+        item_forms.push('<input type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/><input style="width:20px" type="text" id="itemattrsetting' + res.rows.item(i).id + '" value="' + res.rows.item(i).attr + '"/><button class="itemsettingbutton" id="itemsettingbutton' + id + '">変更</button>');
       }
-      return _results;
+      return item_forms;
     };
     _res2li = function(res) {
       return wrapHtmlList(_res2string(res), 'li').join('');
@@ -407,6 +441,7 @@
     });
     $('#itemadd button').on('click touch', addItem);
     $(document).on('blur', '#itemlist li input', addTraining);
+    $(document).on('click touch', '.itemsettingbutton', editItem);
     $('#pasttrainingstitle').on('click touch', function() {
       return db.transaction(function(tx) {
         return renderPastTrainingsDate(tx);

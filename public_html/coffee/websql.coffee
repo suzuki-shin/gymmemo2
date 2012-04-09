@@ -22,6 +22,7 @@ _failure_func = (tx) ->
 # [('id', 'name', 'user', 'attr', 'ordernum'), (1,'hoge','xxx@mail.com','minutes',1)]
 # のようなデータにして返す
 _obj2keysAndVals = (obj) ->
+  _l obj
   keys = []
   vals = []
   for k,v of obj
@@ -73,6 +74,9 @@ selectTrainingsByDate = (tx, success_func = _success_func, failure_func = _failu
 insertItem = (tx, obj, success_func = _success_func, failure_func = _failure_func) ->
   insertData tx, 'items', obj, success_func, failure_func
 
+updateItem = (tx, obj, where_state, success_func = _success_func, failure_func = _failure_func) ->
+  updateData tx, 'items', obj, where_state, success_func, failure_func
+
 insertTraining = (tx, obj, success_func = _success_func, failure_func = _failure_func) ->
   insertData tx, 'trainings', obj, success_func, failure_func
 
@@ -86,6 +90,18 @@ insertData = (tx, table, obj, success_func = _success_func, failure_func = _fail
                 success_func,
                 failure_func
 
+updateData = (tx, table, obj, where_state, success_func = _success_func, failure_func = _failure_func) ->
+  _l 'updateData'
+  [set, params] = obj2updateSet obj
+  _update_state = 'update ' + table + ' ' + set + ' where ' + where_state[0]
+  _l where_state
+  _l _update_state
+  params.push(parseInt(where_state[1]))
+  tx.executeSql _update_state,
+                params,
+                success_func,
+                failure_func
+
 
 addItem = (ev) ->
   db.transaction (tx) ->
@@ -95,6 +111,18 @@ addItem = (ev) ->
                  $('#itemname').attr('value', '')
                  $('#itemattr').attr('value', '')
   false
+
+editItem = (ev) ->
+  _l 'editItem'
+#   _l ev.target.id
+  item_id = ev.target.id.slice(17)
+#   _l item_id
+  _l $('#itemsetting' + item_id).attr('value')
+  _l $('#itemattrsetting' + item_id).attr('value')
+
+  db.transaction (tx) ->
+    updateItem tx, {name: $('#itemsetting' + item_id).attr('value') or null, attr: $('#itemattrsetting' + item_id).attr('value')}, ['id = ?', item_id]
+
 
 # 渡されたselect結果のresをfuncで加工してjqobjに追記する関数
 # res: result object of tx.executeSql()
@@ -108,16 +136,26 @@ renderItemForms = (tx) ->
   _res2inputElems = (res) ->
     len = res.rows.length
     (res.rows.item(i).name + '<input type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr for i in [0...len])
+
   _resToForm =  (res) -> wrapHtmlList(_res2inputElems(res), 'li').join('')
+
   selectItems tx, (tx, res) -> _renderRes res, $('#itemlist'), _resToForm
 
 renderItems = (tx) ->
   _l 'renderItems'
   _res2string = (res) ->
-    _l '_res2string'
     len = res.rows.length
-    ('<span id="itemsetting' + res.rows.item(i).id + '">' + res.rows.item(i).name + ' [' + res.rows.item(i).attr + ']</span>' for i in [0...len])
+    item_forms = []
+    for i in [0...len]
+      id = res.rows.item(i).id
+      item_forms.push('<input type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/><input style="width:20px" type="text" id="itemattrsetting' + res.rows.item(i).id + '" value="' + res.rows.item(i).attr + '"/><button class="itemsettingbutton" id="itemsettingbutton' + id + '">変更</button>')
+#       button_id = 'itemsettingbutton' + id
+#       _l '#' + button_id
+#       $('#' + button_id).on('click', -> alert 'ddd7')
+    item_forms
+
   _res2li = (res) -> wrapHtmlList(_res2string(res), 'li').join('')
+
   selectItems tx, (tx, res) -> _renderRes res, $('#itemlistsetting'), _res2li
 
 
@@ -282,12 +320,16 @@ $ ->
   $('#itemstitle').on 'click touch', -> $('#itemadd').toggle()
   $('#itemadd button').on 'click touch', addItem
   $(document).on 'blur', '#itemlist li input', addTraining
+  $(document).on 'click touch', '.itemsettingbutton', editItem
+#   $('.itemsettingbutton').on 'click', -> alert 'jkjkj'
 
   $('#pasttrainingstitle').on 'click touch', ->
     db.transaction (tx) -> renderPastTrainingsDate tx
 
   $(document).on 'touchstart', '#pasttraininglist li span', renderTrainingByDate
   $(document).on 'click', '#pasttraininglist li span', renderTrainingByDate
+#   $(document).on 'click', '#itemsettingbutton', editItem
+
 
 
   $('#debug').on 'click touch',
