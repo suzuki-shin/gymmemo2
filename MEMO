@@ -7,6 +7,7 @@
 - [ ] tableschemaのバージョン変更の仕組み入れる
 - [ ] twitterに投稿できるようにする
 - [ ] 見た目整える(twitter bootstrap使って見る?)
+- [ ] jquery mobile入れる(mobile用のeventがある)=>jquerymobile入れなくても使えるとか？
 
 ** テーブル
 - 種目(items)
