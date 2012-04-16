@@ -190,12 +190,12 @@
       len = res.rows.length;
       _results = [];
       for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
-        _results.push(res.rows.item(i).name + '<input class="input-small" type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr);
+        _results.push('<td>' + res.rows.item(i).name + '</td><td><input class="input-small" type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr + '</td>');
       }
       return _results;
     };
     _resToForm = function(res) {
-      return wrapHtmlList(_res2inputElems(res), 'li').join('');
+      return wrapHtmlList(_res2inputElems(res), 'tr').join('');
     };
     return selectItems(tx, function(tx, res) {
       return _renderRes(res, $('#itemlist'), _resToForm);
@@ -226,7 +226,7 @@
   renderTodaysTrainings = function(tx) {
     _l('renderTodaysTrainings');
     return selectTrainingsByDate(tx, function(tx, res) {
-      return $('#todaystraininglist').empty().append(wrapHtmlList(_res2NameValues(res), 'li').join(''));
+      return $('#todaystraininglist').empty().append(wrapHtmlList(wrapHtmlList(_res2NameValues(res), 'td'), 'tr').join(''));
     });
   };
 
@@ -241,7 +241,7 @@
       SELECT_TRAININGS_BY_DATE = 'SELECT * FROM trainings t LEFT JOIN items i ON t.item_id = i.id WHERE t.created_at = ? ORDER BY t.id ';
       return tx.executeSql(SELECT_TRAININGS_BY_DATE, [date], function(tx, res) {
         $('#trainingsubtitle').text(date);
-        return $('#pasttraininglist').empty().append(wrapHtmlList(_res2NameValues(res), 'li').join(''));
+        return $('#pasttraininglist').empty().append(wrapHtmlList(wrapHtmlList(_res2NameValues(res), 'td'), 'tr').join(''));
       }, _failure_func);
     };
     return db.transaction(_renderTrainingByDate, _failure_func);
@@ -255,7 +255,7 @@
     SELECT_TRAININGS_DATE = 'SELECT created_at FROM trainings t LEFT JOIN items i ON t.item_id = i.id GROUP BY t.created_at ORDER BY t.created_at ' + order[config['past_trainings_order']] + ' LIMIT 10';
     return tx.executeSql(SELECT_TRAININGS_DATE, [], function(tx, res) {
       $('#trainingsubtitle').text('');
-      return $('#pasttraininglist').empty().append(wrapHtmlList(_res2Date(res), 'li').join(''));
+      return $('#pasttraininglist').empty().append(wrapHtmlList(wrapHtmlList(_res2Date(res), 'td'), 'tr').join(''));
     }, _failure_func);
   };
 
@@ -442,15 +442,15 @@
       return $('#itemadd').toggle();
     });
     $('#itemadd button').on('click touch', addItem);
-    $(document).on('blur', '#itemlist li input', addTraining);
+    $(document).on('blur', '#itemlist input', addTraining);
     $(document).on('click touch', '.itemsettingbutton', editItem);
     $('#pasttrainingstitle').on('click touch', function() {
       return db.transaction(function(tx) {
         return renderPastTrainingsDate(tx);
       });
     });
-    $(document).on('touchstart', '#pasttraininglist li span', renderTrainingByDate);
-    $(document).on('click', '#pasttraininglist li span', renderTrainingByDate);
+    $(document).on('touchstart', '#pasttraininglist span', renderTrainingByDate);
+    $(document).on('click', '#pasttraininglist span', renderTrainingByDate);
     $(document).on('touchstart click', '#settingtitle', function() {
       return $('#setting').toggle();
     });

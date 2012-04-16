@@ -1,16 +1,13 @@
 <!DOCTYPE HTML>
 <!-- <html manifest="cache-manifest.appcache"> -->
-<html>
+<!-- <html> -->
   <head>
     <meta charset="utf-8" />
-    <link type="text/css" rel="stylesheet" href="css/main.css" />
-    <link type="text/css" rel="stylesheet" href="css/iphone.css" media="only screen and (max-width: 480px)" />
+<!--     <link type="text/css" rel="stylesheet" href="css/main.css" /> -->
+<!--     <link type="text/css" rel="stylesheet" href="css/iphone.css" media="only screen and (max-width: 480px)" /> -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
 <!--     <link type="text/css" rel="stylesheet" href="/stylesheets/debug.css" /> -->
-    <script type="text/javascript" src="scripts/jquery.js"></script>
-<!--     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> -->
-<!--     <script type="text/javascript" src="/js/gymmemo.js"></script> -->
-    <script type="text/javascript" src="scripts/websql.js"></script>
-<!--     <script type="text/javascript" src="scripts/gymmemo2.js"></script> -->
     <meta name="viewport" content="user-scalable=no, width=device-width" />
   </head>
   <body>
@@ -21,29 +18,29 @@
       <div id="content">
         <h2 id="itemstitle">トレーニング種目 +</h2>
         <div id="items">
-          <form id="itemadd" style="display:none;">
-            <input type="text" id="itemname" name="itemname" value="" />
+          <form id="itemadd" class="well form-inline" style="display:none;">
+            <input type="text" id="itemname" name="itemname" value="" size="20" />
             <select name="itemattr" id="itemattr">
               <option value="" />
               <option value="回" />回
               <option value="分" />分
               <option value="kg" />kg
             </select>
-            <button>登録</button>
+            <button type="submit" class="btn">登録</button>
           </form>
-          <ul id="itemlist">
-          </ul>
+          <table id="itemlist" class="table">
+          </table>
         </div>
         <h2 id="todaystrainingstitle">今日のトレーニング記録</h2>
         <div id="todaystrainings">
-          <ul id="todaystraininglist">
-          </ul>
+          <table id="todaystraininglist" class="table">
+          </table>
         </div>
         <h2 id="pasttrainingstitle">過去のトレーニング記録</h2>
         <div id="pasttrainings">
           <p id="trainingsubtitle"></p>
-          <ul id="pasttraininglist">
-          </ul>
+          <table id="pasttraininglist" class="table">
+          </table>
         </div>
         <h2 id="settingtitle">設定</h2>
         <div id="setting">
@@ -62,5 +59,10 @@
         <p id="save" style="display:none;">サーバに保存する!</p>
       </div>
     </div>
+    <script type="text/javascript" src="js/jquery.js"></script>
+<!--     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> -->
+<!--     <script type="text/javascript" src="/js/gymmemo.js"></script> -->
+    <script type="text/javascript" src="js/websql.js"></script>
+<!--     <script type="text/javascript" src="scripts/gymmemo2.js"></script> -->
   </body>
-</html>
+</HTML>
