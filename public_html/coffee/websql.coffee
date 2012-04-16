@@ -137,9 +137,9 @@ renderItemForms = (tx) ->
   _l 'renderItemForms'
   _res2inputElems = (res) ->
     len = res.rows.length
-    (res.rows.item(i).name + '<input type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr for i in [0...len])
+    ('<td>' + res.rows.item(i).name + '</td><td><input class="input-small" type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr + '</td>' for i in [0...len])
 
-  _resToForm =  (res) -> wrapHtmlList(_res2inputElems(res), 'li').join('')
+  _resToForm =  (res) -> wrapHtmlList(_res2inputElems(res), 'tr').join('')
 
   selectItems tx, (tx, res) -> _renderRes res, $('#itemlist'), _resToForm
 
@@ -161,7 +161,7 @@ renderItems = (tx) ->
 
 renderTodaysTrainings = (tx) ->
   _l 'renderTodaysTrainings'
-  selectTrainingsByDate tx, (tx, res) -> $('#todaystraininglist').empty().append wrapHtmlList(_res2NameValues(res), 'li').join('')
+  selectTrainingsByDate tx, (tx, res) -> $('#todaystraininglist').empty().append wrapHtmlList(wrapHtmlList(_res2NameValues(res), 'td'), 'tr').join('')
 
 renderTrainingByDate = (ev) ->
     _l 'renderTrainingByDate'
@@ -173,7 +173,7 @@ renderTrainingByDate = (ev) ->
         tx.executeSql SELECT_TRAININGS_BY_DATE, [date],
                       (tx, res) ->
                           $('#trainingsubtitle').text date
-                          $('#pasttraininglist').empty().append wrapHtmlList(_res2NameValues(res), 'li').join('')
+                          $('#pasttraininglist').empty().append wrapHtmlList(wrapHtmlList(_res2NameValues(res), 'td'), 'tr').join('')
                       _failure_func
     db.transaction _renderTrainingByDate, _failure_func
 
@@ -190,7 +190,7 @@ renderPastTrainingsDate = (tx) ->
                   (tx, res) ->
                       $('#trainingsubtitle').text ''
                       $('#pasttraininglist').empty()
-                                          .append wrapHtmlList(_res2Date(res), 'li').join('')
+                                          .append wrapHtmlList(wrapHtmlList(_res2Date(res), 'td'), 'tr').join('')
                   _failure_func
 
 
@@ -320,15 +320,15 @@ $ ->
 
   $('#itemstitle').on 'click touch', -> $('#itemadd').toggle()
   $('#itemadd button').on 'click touch', addItem
-  $(document).on 'blur', '#itemlist li input', addTraining
+  $(document).on 'blur', '#itemlist input', addTraining
   $(document).on 'click touch', '.itemsettingbutton', editItem
 #   $('.itemsettingbutton').on 'click', -> alert 'jkjkj'
 
   $('#pasttrainingstitle').on 'click touch', ->
     db.transaction (tx) -> renderPastTrainingsDate tx
 
-  $(document).on 'touchstart', '#pasttraininglist li span', renderTrainingByDate
-  $(document).on 'click', '#pasttraininglist li span', renderTrainingByDate
+  $(document).on 'touchstart', '#pasttraininglist span', renderTrainingByDate
+  $(document).on 'click', '#pasttraininglist span', renderTrainingByDate
   $(document).on 'touchstart click', '#settingtitle', -> $('#setting').toggle()
 
 

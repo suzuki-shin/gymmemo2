@@ -190,7 +190,7 @@
       len = res.rows.length;
       _results = [];
       for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
-        _results.push(res.rows.item(i).name + '<input type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr);
+        _results.push(res.rows.item(i).name + '<input class="input-small" type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr);
       }
       return _results;
     };
