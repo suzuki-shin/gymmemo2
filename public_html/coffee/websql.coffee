@@ -196,7 +196,7 @@ renderPastTrainingsDate = (tx) ->
 
 _res2NameValues = (res) ->
     len = res.rows.length
-    (res.rows.item(i).name + ' ' + res.rows.item(i).value + res.rows.item(i).attr for i in [0...len])
+    ('<td>' + res.rows.item(i).name + '</td><td>' + res.rows.item(i).value + ' ' + res.rows.item(i).attr + '</td>'for i in [0...len])
 
 _res2ItemAll= (res) ->
     len = res.rows.length
