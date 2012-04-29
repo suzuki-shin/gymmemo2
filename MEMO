@@ -1,12 +1,12 @@
 * MEMO
 ** TODO?
+- [ ] サーバ側に保存する
 - [X] localstrageに設定(userとかsort順とか,tableschemaのバージョンとか)保存
 - [X] 過去の記録を復活させる
 - [ ] 記録やitemのデータを修正できるようにする
-- [ ] サーバ側に保存する
 - [ ] tableschemaのバージョン変更の仕組み入れる
 - [ ] twitterに投稿できるようにする
-- [ ] 見た目整える(twitter bootstrap使って見る?)
+- [X] 見た目整える(twitter bootstrap使って見る?)
 - [ ] jquery mobile入れる(mobile用のeventがある)=>jquerymobile入れなくても使えるとか？
 
 ** テーブル

@@ -4,9 +4,11 @@
   # config
   */
 
-  var addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2updateSet, order, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, selectItems, selectTrainingsByDate, setConfig, setUp, updateData, updateItem, wrapHtmlList, xxx, _DEBUG, _failure_func, _l, _obj2keysAndVals, _renderRes, _res2Date, _res2ItemAll, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
+  var SERVER_BASE_URL, addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2updateSet, order, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveRecords, selectItems, selectTrainingsByDate, selectUnsavedItems, setConfig, setUp, updateData, updateItem, wrapHtmlList, xxx, _DEBUG, _failure_func, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
 
   _DEBUG = true;
+
+  SERVER_BASE_URL = 'http://gymmemoserver.appspot.com/';
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -97,6 +99,13 @@
     return tx.executeSql('select * from items order by ordernum asc', [], success_func, failure_func);
   };
 
+  selectUnsavedItems = function(tx, success_func, failure_func) {
+    if (success_func == null) success_func = _success_func;
+    if (failure_func == null) failure_func = _failure_func;
+    _l('selectItems');
+    return tx.executeSql('select * from items where is_saved = 0 order by ordernum asc', [], success_func, failure_func);
+  };
+
   selectTrainingsByDate = function(tx, success_func, failure_func) {
     var SELECT_TRAININGS_BY_DATE;
     if (success_func == null) success_func = _success_func;
@@ -142,10 +151,10 @@
     if (failure_func == null) failure_func = _failure_func;
     _l('updateData');
     _ref = obj2updateSet(obj), set = _ref[0], params = _ref[1];
-    _update_state = 'update ' + table + ' ' + set + ' where ' + where_state[0];
+    _update_state = 'update ' + table + ' ' + set + ' where ' + where_state;
     _l(where_state);
     _l(_update_state);
-    params.push(parseInt(where_state[1]));
+    _l(params);
     return tx.executeSql(_update_state, params, success_func, failure_func);
   };
 
@@ -174,7 +183,7 @@
       return updateItem(tx, {
         name: $('#itemsetting' + item_id).attr('value') || null,
         attr: $('#itemattrsetting' + item_id).attr('value')
-      }, ['id = ?', item_id], renderItemForms);
+      }, 'id = ' + item_id, renderItemForms);
     });
   };
 
@@ -275,6 +284,24 @@
     _results = [];
     for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
       _results.push(res.rows.item(i).id + ' ' + res.rows.item(i).name + ' ' + res.rows.item(i).user + ' ' + res.rows.item(i).attr + ' ' + res.rows.item(i).is_saved);
+    }
+    return _results;
+  };
+
+  _res2ItemAllList = function(res) {
+    var i, len, _results;
+    len = res.rows.length;
+    _results = [];
+    for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
+      _results.push({
+        id: res.rows.item(i).id,
+        name: res.rows.item(i).name,
+        user: res.rows.item(i).user,
+        attr: res.rows.item(i).attr,
+        is_saved: res.rows.item(i).is_saved,
+        is_active: res.rows.item(i).is_active,
+        ordernum: res.rows.item(i).ordernum
+      });
     }
     return _results;
   };
@@ -436,6 +463,72 @@
     });
   };
 
+  _post = function(url, data, success, failure) {
+    if (success == null) success = _success_func;
+    if (failure == null) failure = _failure_func;
+    _l('_post ' + url);
+    return $.ajax({
+      url: url,
+      type: 'POST',
+      data: data,
+      success: function(data, status, xhr) {
+        return success;
+      },
+      error: function(data, status, xhr) {
+        return failure;
+      }
+    });
+  };
+
+  saveItems = function(tx) {
+    _l('saveItems');
+    return selectUnsavedItems(tx, function(tx, res) {
+      var d, data;
+      data = _res2ItemAllList(res);
+      _l(JSON.stringify(data));
+      return _post(SERVER_BASE_URL + 'save_item', JSON.stringify(data), _l(((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          d = data[_i];
+          _results.push(d['id']);
+        }
+        return _results;
+      })()).join(',')), updateItem(tx, {
+        is_saved: 1
+      }, 'id IN (' + ((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          d = data[_i];
+          _results.push(d['id']);
+        }
+        return _results;
+      })()).join(',') + ')'));
+    });
+  };
+
+  saveRecords = function(tx) {
+    return tx.executeSql(select_records_unsaved, [localStorage['user']], function(tx, res) {
+      var data, i, len;
+      len = res.rows.length;
+      data = (function() {
+        var _results;
+        _results = [];
+        for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
+          _results.push(res.rows.item(i));
+        }
+        return _results;
+      })();
+      return $.ajax({
+        type: 'POST',
+        url: '/save_record',
+        data: JSON.stringify(data),
+        success: _updateSavedRecord
+      });
+    });
+  };
+
   $(function() {
     setUp();
     $('#itemstitle').on('click touch', function() {
@@ -482,11 +575,7 @@
     $('#test2').on('click touch', function() {
       _l('test2!');
       return db.transaction(function(tx) {
-        return selectTrainingsByDate(tx, function(tx, res) {
-          return xxx(res, function(x) {
-            return x.attr + ':' + x.created_at + ':' + x.item_id + ':' + x.name;
-          });
-        });
+        return saveItems(tx);
       });
     });
     return $('#test3').on('click touch', function() {

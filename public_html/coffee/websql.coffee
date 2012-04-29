@@ -3,8 +3,12 @@
 ###
 _DEBUG = true
 # DEBUG = false
+SERVER_BASE_URL ='http://gymmemoserver.appspot.com/'
+# SERVER_BASE_URL ='http://localhost:8080/'
+
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
 order = [' ASC ', ' DESC ']
+
 
 _l = (mes, log_func =(mes)-> console?.log mes) ->
   if _DEBUG
@@ -64,6 +68,12 @@ selectItems = (tx, success_func = _success_func, failure_func = _failure_func) -
                 success_func,
                 failure_func
 
+selectUnsavedItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
+  _l 'selectItems'
+  tx.executeSql 'select * from items where is_saved = 0 order by ordernum asc', [],
+                success_func,
+                failure_func
+
 selectTrainingsByDate = (tx, success_func = _success_func, failure_func = _failure_func) ->
   _l 'selectTrainingsByDate'
   SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings AS tr LEFT JOIN items AS it ON tr.item_id = it.id WHERE tr.created_at = ? ORDER BY tr.id '# + order[config['todays_training_order']]
@@ -93,10 +103,12 @@ insertData = (tx, table, obj, success_func = _success_func, failure_func = _fail
 updateData = (tx, table, obj, where_state, success_func = _success_func, failure_func = _failure_func) ->
   _l 'updateData'
   [set, params] = obj2updateSet obj
-  _update_state = 'update ' + table + ' ' + set + ' where ' + where_state[0]
+  _update_state = 'update ' + table + ' ' + set + ' where ' + where_state
   _l where_state
   _l _update_state
-  params.push(parseInt(where_state[1]))
+#   params.push(where_state[1])
+#   params.push(parseInt(where_state[1]))
+  _l params
   tx.executeSql _update_state,
                 params,
                 success_func,
@@ -122,7 +134,8 @@ editItem = (ev) ->
   _l $('#itemattrsetting' + item_id).attr('value')
 
   db.transaction (tx) ->
-    updateItem tx, {name: $('#itemsetting' + item_id).attr('value') or null, attr: $('#itemattrsetting' + item_id).attr('value')}, ['id = ?', item_id],
+    updateItem tx, {name: $('#itemsetting' + item_id).attr('value') or null, attr: $('#itemattrsetting' + item_id).attr('value')}, 'id = ' + item_id,
+#     updateItem tx, {name: $('#itemsetting' + item_id).attr('value') or null, attr: $('#itemattrsetting' + item_id).attr('value')}, ['id = ?', item_id],
                renderItemForms
 
 
@@ -198,11 +211,15 @@ _res2NameValues = (res) ->
     len = res.rows.length
     ('<td>' + res.rows.item(i).name + '</td><td>' + res.rows.item(i).value + ' ' + res.rows.item(i).attr + '</td>'for i in [0...len])
 
-_res2ItemAll= (res) ->
+_res2ItemAll = (res) ->
     len = res.rows.length
     (res.rows.item(i).id + ' ' + res.rows.item(i).name + ' ' + res.rows.item(i).user + ' ' + res.rows.item(i).attr + ' ' + res.rows.item(i).is_saved for i in [0...len])
 
-_res2TrainingAll= (res) ->
+_res2ItemAllList = (res) ->
+    len = res.rows.length
+    ({id:res.rows.item(i).id, name:res.rows.item(i).name, user:res.rows.item(i).user, attr:res.rows.item(i).attr, is_saved:res.rows.item(i).is_saved, is_active:res.rows.item(i).is_active, ordernum:res.rows.item(i).ordernum} for i in [0...len])
+
+_res2TrainingAll = (res) ->
     len = res.rows.length
     (res.rows.item(i).id + ' ' + res.rows.item(i).item_id + ' ' + res.rows.item(i).value + ' ' + res.rows.item(i).created_at + ' ' + res.rows.item(i).is_saved for i in [0...len])
 
@@ -313,6 +330,38 @@ dropTableTrainings =->
                   -> alert 'error: dropTableTrainings',
                   -> alert 'success: dropTableTrainings',
 
+_post = (url, data, success = _success_func, failure = _failure_func) ->
+  _l '_post ' + url
+  $.ajax
+    url: url
+    type: 'POST'
+    data: data
+    success: (data, status, xhr) -> success
+    error: (data, status, xhr) -> failure
+
+saveItems = (tx) ->
+  _l 'saveItems'
+  selectUnsavedItems tx,
+                     (tx, res) ->
+                       data = _res2ItemAllList(res)
+                       _l JSON.stringify(data)
+                       _post SERVER_BASE_URL + 'save_item',
+                             JSON.stringify(data),
+                             _l (d['id'] for d in data).join(',')
+                             updateItem tx, {is_saved:1}, 'id IN (' + (d['id'] for d in data).join(',') + ')'
+
+saveRecords = (tx) ->
+    tx.executeSql select_records_unsaved,
+                  [localStorage['user']],
+                  (tx, res) ->
+                      len = res.rows.length
+                      data = (res.rows.item(i) for i in [0...len])
+                      $.ajax
+                          type: 'POST'
+                          url: '/save_record'
+                          data: JSON.stringify(data)
+                          success: _updateSavedRecord
+
 
 
 $ ->
@@ -361,8 +410,12 @@ $ ->
   $('#test2').on 'click touch', ->
     _l 'test2!'
     db.transaction (tx) ->
-      selectTrainingsByDate tx,
-                            (tx, res) -> xxx(res, (x) -> x.attr + ':' + x.created_at + ':' + x.item_id + ':' + x.name)
+      saveItems(tx)
+#       selectItems tx,
+#                   (tx, res) -> _l JSON.stringify(res)
+#     db.transaction (tx) ->
+#       selectTrainingsByDate tx,
+#                             (tx, res) -> xxx(res, (x) -> x.attr + ':' + x.created_at + ':' + x.item_id + ':' + x.name)
 #     _l getYYYYMMDD()
 #     _l wrapHtmlList [1..5], 'li'
 #     db.transaction (tx) ->
